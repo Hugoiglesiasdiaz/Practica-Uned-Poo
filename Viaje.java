@@ -7,8 +7,6 @@
  */
 public class Viaje
 {
-    // instance variables - replace the example below with your own
-    private int x;
     private int id;
     private Usuario usuario;
     private Vehiculo vehiculo;
@@ -18,21 +16,53 @@ public class Viaje
     /**
      * Constructor for objects of class Viaje
      */
-    public Viaje()
-    {
-        // initialise instance variables
-        x = 0;
+    
+    public Viaje(int id, Usuario usuario, Vehiculo vehiculo, Coordenada inicio, Coordenada fin, float coste) {
+        this.id = id;
+        this.usuario = usuario;
+        this.vehiculo = vehiculo;
+        this.inicio = inicio;
+        this.fin = fin;
+        this.coste = coste;
     }
 
-    /**
-     * An example of a method - replace this comment with your own
-     * 
-     * @param  y   a sample parameter for a method
-     * @return     the sum of x and y 
-     */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return x + y;
+
+    public int getId() {
+        return id;
     }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public Usuario getUsuario() {
+        return usuario;
+    }
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+    public Vehiculo getVehiculo() {
+        return vehiculo;
+    }
+    public void setVehiculo(Vehiculo vehiculo) {
+        this.vehiculo = vehiculo;
+    }
+    public Coordenada getInicio() {
+        return inicio;
+    }
+    public void setInicio(Coordenada inicio) {
+        this.inicio = inicio;
+    }
+    public Coordenada getFin() {
+        return fin;
+    }
+    public void setFin(Coordenada fin) {
+        this.fin = fin;
+    }
+    public float getCoste() {
+        return coste;
+    }
+    public void setCoste(float coste) {
+        this.coste = coste;
+    }
+
+    
 }

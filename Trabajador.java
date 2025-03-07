@@ -1,34 +1,24 @@
+public class Trabajador extends Persona implements Comparable<Trabajador>{
 
-/**
- * Write a description of class Trabajador here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
-public class Trabajador extends Persona
-{
-    // instance variables - replace the example below with your own
-    private int x;
-    private String rol;
-    private String turno;
-    /**
-     * Constructor for objects of class Trabajador
-     */
-    public Trabajador()
-    {
-        // initialise instance variables
-        x = 0;
+    public Trabajador(int id, String nombre, String apellidos, String dni) {
+        super(id,nombre,apellidos,dni);
     }
 
-    /**
-     * An example of a method - replace this comment with your own
-     * 
-     * @param  y   a sample parameter for a method
-     * @return     the sum of x and y 
-     */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return x + y;
+    public void mostrarInfo() {
+        System.out.println("ID: " + getId() + ", Nombre: " + getNombre() + " Apellidos:" + getApellidos() + ", DNI: " + getDni() + " " + getClass().getSimpleName());
+    }
+
+    @Override
+    public int compareTo(Trabajador otro) {
+        return Integer.compare(this.getId(), otro.getId());
+    }
+
+    public void asignarVehiculo(Vehiculo vehiculo){
+
+    }
+
+    public void asignarBase(Base base){
+
     }
 }
+

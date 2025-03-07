@@ -17,10 +17,11 @@ public abstract class Persona
     /**
      * Constructor for objects of class Persona
      */
-    public Persona()
-    {
-        // initialise instance variables
-        
+    public Persona(int id, String nombre, String apellidos, String dni) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.dni = dni;
     }
 
     /**
@@ -29,9 +30,36 @@ public abstract class Persona
      * @param  y   a sample parameter for a method
      * @return     the sum of x and y 
      */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return 0;
+    public void setNombre(String nombre){
+        this.nombre = nombre;
     }
+    
+    public String getNombre(){
+        return this.nombre;
+    }
+    
+    public String getDni(){
+        return this.dni;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+    
 }

@@ -7,27 +7,13 @@
  */
 public class Bicicleta extends Vehiculo
 {
-    // instance variables - replace the example below with your own
-    private int x;
     private Base baseActual;
     /**
      * Constructor for objects of class Bicicleta
      */
-    public Bicicleta()
-    {
-        // initialise instance variables
-        x = 0;
+    public Bicicleta(int id, String tipo, String estado, Coordenada ubicacion, float bateria, Base baseActual) {
+        super(id, tipo, estado, ubicacion, bateria);
+        this.baseActual = baseActual;
     }
-
-    /**
-     * An example of a method - replace this comment with your own
-     * 
-     * @param  y   a sample parameter for a method
-     * @return     the sum of x and y 
-     */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return x + y;
-    }
+    
 }

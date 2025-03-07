@@ -7,31 +7,57 @@
  */
 public class Vehiculo
 {
-    // instance variables - replace the example below with your own
-    private int x;
     private int id;
-    private String tipo;
+    
     private String estado;
     private Coordenada ubicacion;
     private float bateria;
+    private String problema;
+    private boolean disponible;
     /**
      * Constructor for objects of class Vehículo
      */
-    public Vehiculo()
+    public Vehiculo(int id,String tipo,String estado,Coordenada ubicacion,float bateria)
     {
-        // initialise instance variables
-        x = 0;
+        this.id=id;
+        this.estado=estado;
+        this.ubicacion = ubicacion;
+        this.bateria = bateria;
+        this.problema="";
+        this.disponible = true;
     }
 
-    /**
-     * An example of a method - replace this comment with your own
-     * 
-     * @param  y   a sample parameter for a method
-     * @return     the sum of x and y 
-     */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return x + y;
+    public void consultarBatería(){
+        System.out.println("Vehiculo nº" + id + " tipo:" + getClass().getSimpleName() + " batería:" + bateria);
     }
+
+    public String getProblema() {
+        return problema;
+    }
+
+    public void setProblema(String problema) {
+        this.problema = problema;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public float getBateria() {
+        return bateria;
+    }
+
+    public void setBateria(float bateria) {
+        this.bateria = bateria;
+    }
+    
+    
 }

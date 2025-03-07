@@ -1,0 +1,11 @@
+#BlueJ class context
+comment0.target=Trabajador
+comment1.params=id\ nombre\ apellidos\ dni\ rol
+comment1.target=Trabajador(int,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String)
+comment2.params=
+comment2.target=java.lang.String\ getDni()
+comment3.params=rol
+comment3.target=void\ setRol(java.lang.String)
+comment4.params=
+comment4.target=void\ mostrarInfo()
+numComments=5
