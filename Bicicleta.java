@@ -11,8 +11,8 @@ public class Bicicleta extends Vehiculo
     /**
      * Constructor for objects of class Bicicleta
      */
-    public Bicicleta(int id, String tipo, String estado, Coordenada ubicacion, float bateria, Base baseActual) {
-        super(id, tipo, estado, ubicacion, bateria);
+    public Bicicleta(int id, String tipo, String estado, Coordenada ubicacion, float bateria, Base baseActual,boolean disponible) {
+        super(id, tipo, estado, ubicacion, bateria,disponible);
         this.baseActual = baseActual;
     }
     

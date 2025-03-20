@@ -63,5 +63,22 @@ public class Base {
         ocupacion=capacidad -vehiculos.size();
         return ocupacion;
     }
+
+
+    @Override
+    public String toString() {
+        return "Base [nombre=" + nombre + ", coordenadas=" + coordenadas + "]";
+    }
+
+
+    public Coordenada getCoordenadas() {
+        return coordenadas;
+    }
+
+
+    public void setCoordenadas(Coordenada coordenadas) {
+        this.coordenadas = coordenadas;
+    }
     
-}
+    
+}   

@@ -12,10 +12,11 @@ public class Moto extends Vehiculo
     /**
      * Constructor for objects of class Moto
      */
-    public Moto(int id, String tipo, String estado, Coordenada ubicacion, float bateria, int x, String cilindrada) {
-        super(id, tipo, estado, ubicacion, bateria);
+    public Moto(int id, String tipo, String estado, Coordenada ubicacion, float bateria, int x, String cilindrada,boolean disponible) {
+        super(id, tipo, estado, ubicacion, bateria,disponible);
         this.cilindrada = cilindrada;
     }
-
+    
+    
     
 }

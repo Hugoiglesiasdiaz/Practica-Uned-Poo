@@ -13,6 +13,7 @@ public class Usuario extends Persona
     private String tipoUsuario;
     private int saldo;
     private List<Viaje> historialViajes =new ArrayList<>();
+    private int contadorViajes;
 
     /**
      * Constructor for objects of class Usuario
@@ -20,6 +21,7 @@ public class Usuario extends Persona
     public Usuario(int id,String nombre,String apellidos,String dni,String tipoUsuario)
     {super(id,nombre,apellidos,dni);
         this.tipoUsuario=tipoUsuario;
+        contadorViajes=0;
     }    
     
     public void mostrarInfo(){
@@ -42,6 +44,10 @@ public class Usuario extends Persona
         this.saldo = saldo;
     }
 
+    public void aumentarSaldo(int aumento){
+        this.saldo += aumento;
+    }
+
     public List<Viaje> getHistorialViajes() {
         return historialViajes;
     }
@@ -52,5 +58,13 @@ public class Usuario extends Persona
     
     public void realizarViaje(Viaje viaje){
         getHistorialViajes().add(viaje);
+        contadorViajes++;
     }
+
+    @Override
+    public String toString() {
+        return getNombre() + " " + getApellidos() ;
+    }
+    
+    
 }

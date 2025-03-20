@@ -1,14 +1,17 @@
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     private static List<Usuario> usuarios = new ArrayList<>();
     private static List<Trabajador> trabajadores = new ArrayList<>();
     private static Scanner scanner = new Scanner(System.in);
     private static int contadorId = 1;
+    private static int contadorIdViaje = 1;
     private static String tipoUsuario; // Variable para almacenar el tipo de usuario
     private static List<Vehiculo> vehiculos = new ArrayList<>();
     private static List<Base> bases = new ArrayList<>();
@@ -18,13 +21,18 @@ public class Main {
         inicializarVariables();
         identificarTipoUsuario(); // Identifica si es Admin, Usuario, Mecánico o Mantenimiento
 
-        switch (tipoUsuario.toLowerCase()) {
-            case "administrador" -> menuAdministrador();
-            case "usuario" -> menuUsuario();
-            case "mecanico" -> menuMecanico();
-            case "mantenimiento" -> menuMantenimiento();
-            default -> System.out.println("Tipo de usuario desconocido.");
+        while (!tipoUsuario.equalsIgnoreCase("salir")) {
+            switch (tipoUsuario.toLowerCase()) {
+                case "administrador" -> menuAdministrador();
+                case "usuario" -> menuUsuario();
+                case "mecanico" -> menuMecanico();
+                case "mantenimiento" -> menuMantenimiento();
+                case "salir" -> System.out.println("Saliendo del sistema...");
+                default -> System.out.println("Tipo de usuario desconocido.");
+            }
         }
+
+        System.out.println("Programa finalizado.");
     }
 
     private static void menuAdministrador() {
@@ -62,55 +70,138 @@ public class Main {
                 case 10 -> System.out.println("Actualización de flota... (TODO)");
                 case 11 -> System.out.println("Generando estadísticas... (TODO)");
                 case 12 -> System.out.println("Promoción de usuarios a premium... (TODO)");
-                case 13 -> System.out.println("Saliendo del sistema...");
+                case 13 -> {
+                    System.out.println("Volviendo a la selección de tipo de usuario...");
+                    identificarTipoUsuario(); // Volver a la selección de usuario
+                    return;
+                }
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
             }
         } while (opcion != 13);
     }
 
     private static void menuUsuario() {
-        int opcion;
+        int opcionAlumno;
+        // Mostrar alumnos y opción de salir
         do {
-            System.out.println("\n=== MENÚ USUARIO ===");
-            System.out.println("1. Consultar historial de viajes");
-            System.out.println("2. Consultar saldo");
-            System.out.println("3. Recargar saldo");
-            System.out.println("4. Salir");
-            System.out.print("Seleccione una opción: ");
+            System.out.println("\n=== LISTA DE USUARIOS ===");
+            for (int i = 0; i < usuarios.size(); i++) {
+                System.out.println((i + 1) + ". " + usuarios.get(i).getNombre() + " " + usuarios.get(i).getApellidos());
+            }
+            System.out.println("0. Salir"); // Opción para salir
 
-            opcion = scanner.nextInt();
+            System.out.print("Seleccione un usuario: ");
+            opcionAlumno = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
 
-            switch (opcion) {
-                case 1 -> System.out.println("Mostrando historial de viajes... (TODO)");
-                case 2 -> System.out.println("Mostrando saldo... (TODO)");
-                case 3 -> System.out.println("Recargando saldo... (TODO)");
-                case 4 -> System.out.println("Saliendo del sistema...");
-                default -> System.out.println("Opción inválida. Intente de nuevo.");
+            if (opcionAlumno == 0) {
+                System.out.println("Volviendo a la selección de tipo de usuario... \n");
+                identificarTipoUsuario(); // Volver a la selección de usuario
+                return;
             }
-        } while (opcion != 4);
+
+            if (opcionAlumno < 1 || opcionAlumno > usuarios.size()) {
+                System.out.println("Selección inválida. Intente de nuevo.");
+                continue; // Volver a mostrar la lista de usuarios si la opción es inválida
+            }
+
+            String usuarioSeleccionado = usuarios.get(opcionAlumno - 1).getNombre();
+            System.out.println("\nUsuario seleccionado: " + usuarioSeleccionado);
+            Usuario usuario = getUsuarioByName(usuarioSeleccionado);
+
+            int opcion;
+            do {
+                System.out.println("\n=== MENÚ USUARIO ===");
+                System.out.println("1. Consultar vehículos disponibles (bases y coordenadas)");
+                System.out.println("2. Alquilar un vehículo");
+                System.out.println("3. Informar problema con un vehículo o base");
+                System.out.println("4. Ver historial de viajes e importes");
+                System.out.println("5. Consultar saldo y recargar");
+                System.out.println("6. Generar aviso de problemas mecánicos");
+                System.out.println("7. Consultar ubicación de la moto más cercana");
+                System.out.println("8. Reservar viaje (solo premium)");
+                System.out.println("9. Volver al menú principal");
+                System.out.print("Seleccione una opción: ");
+
+                opcion = scanner.nextInt();
+                scanner.nextLine(); // Limpiar buffer
+
+                switch (opcion) {
+                    case 1 -> consultarVehiculosDisponibles();
+                    case 2 -> alquilarVehiculo(usuario);
+                    case 3 -> informarProblema(usuario);
+                    case 4 -> verHistorialViajes(usuario);
+                    case 5 -> consultarSaldo(usuario);
+                    case 6 -> generarAvisoProblema(usuario);
+                    case 7 -> consultarMotoCercana();
+                    case 8 -> reservarViaje(usuario);
+                    case 9 -> {
+                        System.out.println("Saliendo al menú principal...");
+                        return; // Regresar al menú principal
+                    }
+                    default -> System.out.println("Opción inválida. Intente de nuevo.");
+                }
+            } while (true); // Mantener el ciclo del menú usuario hasta que elija la opción 9
+        } while (true); // El ciclo de mostrar usuarios se repetirá hasta que se elija 0
     }
 
     private static void menuMecanico() {
+    List<Mecanico> mecanicos = trabajadores.stream()
+        .filter(t -> t.getClass().getSimpleName().equals("Mecanico"))
+        .map(t -> (Mecanico) t)
+        .collect(Collectors.toList());
+
+    int opcionMecanico;
+    do {
+        System.out.println("\n=== LISTA DE MECÁNICOS ===");
+        for (int i = 0; i < mecanicos.size(); i++) {
+            System.out.println((i + 1) + ". " + mecanicos.get(i).getNombre() + " " + mecanicos.get(i).getApellidos());
+        }
+        System.out.println("0. Salir");
+
+        System.out.print("Seleccione un mecánico: ");
+        opcionMecanico = scanner.nextInt();
+        scanner.nextLine(); // Limpiar buffer
+
+        if (opcionMecanico == 0) {
+            System.out.println("Volviendo a la selección de tipo de usuario...\n");
+            identificarTipoUsuario();
+            return;
+        }
+
+        if (opcionMecanico < 1 || opcionMecanico > mecanicos.size()) {
+            System.out.println("Selección inválida. Intente de nuevo.");
+            continue;
+        }
+
+        Mecanico mecanico = mecanicos.get(opcionMecanico - 1);
+        System.out.println("\nMecánico seleccionado: " + mecanico.getNombre());
+
         int opcion;
         do {
             System.out.println("\n=== MENÚ MECÁNICO ===");
             System.out.println("1. Consultar vehículos asignados");
             System.out.println("2. Reportar reparación completada");
-            System.out.println("3. Salir");
+            System.out.println("3. Volver al menú principal");
             System.out.print("Seleccione una opción: ");
 
             opcion = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
 
             switch (opcion) {
-                case 1 -> System.out.println("Mostrando vehículos asignados... (TODO)");
-                case 2 -> System.out.println("Reportando reparación completada... (TODO)");
-                case 3 -> System.out.println("Saliendo del sistema...");
+                case 1 -> mostrarVehiculosAsignados(mecanico);
+                case 2 -> reportarReparacion(mecanico);
+                case 3 -> {
+                    System.out.println("Volviendo al menú principal...");
+                    return;
+                }
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
             }
-        } while (opcion != 3);
-    }
+        } while (true);
+    } while (true);
+}
+
+    
 
     private static void menuMantenimiento() {
         int opcion;
@@ -141,21 +232,23 @@ public class Main {
         Coordenada coord4 = new Coordenada(37.7749, -122.4194); // San Francisco
 
         // Añadir dos motos
-        vehiculos.add(new Moto(1, "Moto", "Disponible", coord1, 85.0f, 125, "125cc"));
-        vehiculos.add(new Moto(2, "Moto", "En mantenimiento", coord2, 40.0f, 250, "250cc"));
+        vehiculos.add(new Moto(1, "Moto", "Disponible", coord1, 85.0f, 125, "125cc", true));
+        Moto moto = new Moto(2, "Moto", "En mantenimiento", coord2, 40.0f, 250, "250cc", false);
+        moto.setProblema("Fallo en el motor");
+        vehiculos.add(moto);
 
         Base base1 = new Base(1, "Base Este", coord3, 25);
         Base base2 = new Base(2, "Base Oeste", coord4, 40);
 
         // Añadir dos patinetes
-        vehiculos.add(new Patinete(3, "Patinete", "Disponible", coord1, 90.0f, 0, base1));
-        vehiculos.add(new Patinete(4, "Patinete", "En uso", coord2, 30.0f, 0, base2));
+        vehiculos.add(new Patinete(3, "Patinete", "Disponible", coord1, 90.0f, 0, base1, true));
+        vehiculos.add(new Patinete(4, "Patinete", "En uso", coord2, 30.0f, 0, base2, false));
         base1.addVehiculo(vehiculos.get(2));
         base2.addVehiculo(vehiculos.get(3));
 
         // Añadir dos bicicletas
-        vehiculos.add(new Bicicleta(5, "Bicicleta", "Disponible", coord1, 100.0f, base1));
-        vehiculos.add(new Bicicleta(6, "Bicicleta", "Averiada", coord2, 50.0f, base2));
+        vehiculos.add(new Bicicleta(5, "Bicicleta", "Disponible", coord1, 100.0f, base1, true));
+        vehiculos.add(new Bicicleta(6, "Bicicleta", "Averiada", coord2, 50.0f, base2, true));
 
         base1.addVehiculo(vehiculos.get(4));
         base2.addVehiculo(vehiculos.get(5));
@@ -165,8 +258,8 @@ public class Main {
 
         Usuario usuario1 = new Usuario(1, "Juan", "Pérez", "12345678L", "Estándar");
         Usuario usuario2 = new Usuario(2, "María", "López", "87654321M", "Premium");
-        
-        Viaje viaje = new Viaje(1,usuario1,vehiculos.get(0),coord1,coord2,250);
+
+        Viaje viaje = new Viaje(1, usuario1, vehiculos.get(0), coord1, coord2, 250);
         usuario1.realizarViaje(viaje);
 
         usuarios.add(usuario1);
@@ -189,21 +282,25 @@ public class Main {
         System.out.println("2. Administrador");
         System.out.println("3. Mecánico");
         System.out.println("4. Encargado de Mantenimiento");
+        System.out.println("5. Salir");
         int opcion = scanner.nextInt();
         scanner.nextLine(); // Limpiar buffer
 
         tipoUsuario = switch (opcion) {
             case 1 -> "Usuario";
             case 2 -> "Administrador";
-            case 3 -> "Mecánico";
-            case 4 -> "Encargado de Mantenimiento";
+            case 3 -> "Mecanico";
+            case 4 -> "Mantenimiento";
+            case 5 -> "Salir";
             default -> {
                 System.out.println("Tipo de usuario inválido. Se establecerá como Usuario por defecto.");
                 yield "Usuario";
             }
         };
+        if (opcion != 5) {
+            System.out.println("Tipo de usuario seleccionado: " + tipoUsuario);
+        }
 
-        System.out.println("Tipo de usuario seleccionado: " + tipoUsuario);
     }
 
     // ==============================
@@ -710,22 +807,323 @@ public class Main {
                 System.out.println(u.getNombre() + " no ha realizado ningún viaje.");
                 continue; // Continuar con el siguiente usuario
             }
-    
+
             System.out.println("Historial de viajes de " + u.getNombre() + ":");
             double totalGastado = 0;
-    
+
             // Recorrer los viajes del usuario
             for (Viaje viaje : u.getHistorialViajes()) {
                 System.out.println(" - Vehículo ID: " + viaje.getVehiculo().getId() +
                         " (" + viaje.getVehiculo().getClass().getSimpleName() + ")" +
                         " | Costo: " + viaje.getCoste() + " euros");
-    
+
                 totalGastado += viaje.getCoste();
             }
-    
+
             System.out.println("Total gastado por " + u.getNombre() + ": " + totalGastado + " euros");
         }
     }
-    
 
+    private static void consultarVehiculosDisponibles() {
+        for (Vehiculo v : vehiculos) {
+            if (v.isDisponible() == true) {
+                System.out.println("ID: " + v.getId() + " " + v.getClass().getSimpleName());
+            }
+        }
+    }
+
+    private static void alquilarVehiculo(Usuario usuario) {
+        System.out.println("\n=== ALQUILER DE VEHÍCULO ===");
+
+        try {
+            // Mostrar lista de vehículos disponibles
+            System.out.println("Vehículos disponibles:");
+            for (int i = 0; i < vehiculos.size(); i++) {
+                if (vehiculos.get(i).isDisponible()) {
+                    System.out.println((i + 1) + ". " + vehiculos.get(i).getId() + " "
+                            + vehiculos.get(i).getClass().getSimpleName());
+                }
+            }
+
+            // Seleccionar vehículo
+            System.out.print("Seleccione el número del vehículo que desea alquilar: ");
+            int opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+
+            if (opcionVehiculo < 1 || opcionVehiculo > vehiculos.size()) {
+                System.out.println("Selección inválida. Intente de nuevo.");
+                return;
+            }
+
+            Vehiculo vehiculoSeleccionado = vehiculos.get(opcionVehiculo - 1);
+            System.out.println("Has seleccionado: " + vehiculoSeleccionado.getClass().getSimpleName());
+
+            if (vehiculoSeleccionado.getClass().getSimpleName().equals("Moto")) {
+                try {
+                    System.out.print("Ingrese las coordenadas de inicio (ejemplo: 40.4168,-3.7038): ");
+                    String[] inicioInput = scanner.nextLine().split(",");
+                    Coordenada inicio = new Coordenada(Double.parseDouble(inicioInput[0]),
+                            Double.parseDouble(inicioInput[1]));
+
+                    System.out.print("Ingrese las coordenadas de destino (ejemplo: 40.4170,-3.7045): ");
+                    String[] finInput = scanner.nextLine().split(",");
+                    Coordenada fin = new Coordenada(Double.parseDouble(finInput[0]), Double.parseDouble(finInput[1]));
+
+                    double distancia = calcularDistancia(inicio, fin);
+                    double tarifaBase = 1.5;
+                    double costePorKm = 0.5;
+                    double coste = Math.round((tarifaBase + (distancia * costePorKm)) * 100.0) / 100.0;
+
+                    System.out.println("Moto reservada desde " + inicio + " hasta " + fin);
+                    System.out.println("Costo estimado del viaje: " + coste + "€");
+
+                    Viaje viaje = new Viaje(opcionVehiculo, usuario, vehiculoSeleccionado, inicio, fin, coste);
+                    contadorIdViaje++;
+                    System.out.println(viaje);
+                    vehiculoSeleccionado.setDisponible(false);
+                    usuario.realizarViaje(viaje);
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Error en el formato de coordenadas. Inténtelo de nuevo.");
+                    return;
+                }
+            } else {
+                System.out.println("\nBases disponibles:");
+                for (int i = 0; i < bases.size(); i++) {
+                    System.out.println((i + 1) + ". " + bases.get(i));
+                }
+
+                try {
+                    System.out.print("Seleccione la base de inicio: ");
+                    int baseInicio = scanner.nextInt();
+                    scanner.nextLine();
+                    if (baseInicio < 1 || baseInicio > bases.size()) {
+                        System.out.println("Selección inválida. Intente de nuevo.");
+                        return;
+                    }
+
+                    System.out.print("Seleccione la base de destino: ");
+                    int baseDestino = scanner.nextInt();
+                    scanner.nextLine();
+                    if (baseDestino < 1 || baseDestino > bases.size()) {
+                        System.out.println("Selección inválida. Intente de nuevo.");
+                        return;
+                    }
+                    double distancia = calcularDistancia(bases.get(baseInicio - 1).getCoordenadas(),
+                            bases.get(baseDestino - 1).getCoordenadas());
+                    double tarifaBase = 1.5;
+                    double costePorKm = 0.5;
+                    double coste = Math.round((tarifaBase + (distancia * costePorKm)) * 100.0) / 100.0;
+                    System.out.println(vehiculoSeleccionado + " reservado desde " + bases.get(baseInicio - 1)
+                            + " hasta " + bases.get(baseDestino - 1));
+
+                    Viaje viaje = new Viaje(opcionVehiculo, usuario, vehiculoSeleccionado,
+                            bases.get(baseInicio - 1).getCoordenadas(), bases.get(baseDestino - 1).getCoordenadas(),
+                            coste);
+                    contadorIdViaje++;
+                    vehiculoSeleccionado.setDisponible(false);
+                    System.out.println(viaje);
+                    usuario.realizarViaje(viaje);
+                } catch (InputMismatchException e) {
+                    System.out.println("Entrada inválida. Asegúrese de ingresar un número.");
+                    scanner.nextLine(); // Limpiar buffer
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Ocurrió un error inesperado: " + e.getMessage());
+        }
+    }
+
+    private static Usuario getUsuarioByName(String nombreUsuario) {
+        for (Usuario u : usuarios) {
+            if (u.getNombre().equals(nombreUsuario)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public static double calcularDistancia(Coordenada inicio, Coordenada fin) {
+        final int RADIO_TIERRA = 6371; // Radio de la Tierra en km
+
+        double lat1 = Math.toRadians(inicio.getY());
+        double lon1 = Math.toRadians(inicio.getX());
+        double lat2 = Math.toRadians(fin.getY());
+        double lon2 = Math.toRadians(fin.getX());
+
+        double dLat = lat2 - lat1;
+        double dLon = lon2 - lon1;
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return RADIO_TIERRA * c; // Distancia en kilómetros
+    }
+
+    public static void informarProblema(Usuario usuario) {
+        System.out.println("\n=== INFORMAR PROBLEMA EN VEHÍCULO ===");
+
+        // Verificar si el usuario tiene historial de viajes
+        if (usuario.getHistorialViajes().isEmpty()) {
+            System.out.println("No tienes viajes en tu historial para reportar problemas.");
+            return;
+        }
+
+        // Mostrar historial de viajes
+        System.out.println("Selecciona un viaje para reportar un problema:");
+        List<Viaje> historial = usuario.getHistorialViajes();
+        for (int i = 0; i < historial.size(); i++) {
+            System.out.println((i + 1) + ". " + historial.get(i).getVehiculo().getId() + " - " +
+                    historial.get(i).getVehiculo().getClass().getSimpleName());
+        }
+
+        // Seleccionar un viaje
+        System.out.print("Ingrese el número del viaje: ");
+        int opcion = scanner.nextInt();
+        scanner.nextLine(); // Limpiar buffer
+
+        if (opcion < 1 || opcion > historial.size()) {
+            System.out.println("Selección inválida. Intente de nuevo.");
+            return;
+        }
+
+        // Obtener el vehículo asociado al viaje seleccionado
+        Viaje viajeSeleccionado = historial.get(opcion - 1);
+        Vehiculo vehiculo = viajeSeleccionado.getVehiculo();
+
+        // Ingresar problema
+        System.out.print("Describa el problema con el vehículo: ");
+        String descripcionProblema = scanner.nextLine();
+
+        // Establecer problema en el vehículo
+        vehiculo.setProblema(descripcionProblema);
+        System.out.println("Problema reportado exitosamente para el vehículo " + vehiculo.getId());
+    }
+
+    public static void verHistorialViajes(Usuario usuario) {
+        List<Viaje> viajes = usuario.getHistorialViajes();
+        System.out.println("Viajes de " + usuario.getNombre() + " " + usuario.getApellidos());
+        int contadorViajes = 1;
+        for (Viaje v : viajes) {
+            System.out.println("Viaje " + contadorViajes + " vehiculo: " + v.getVehiculo().getClass().getSimpleName()
+                    + " " + v.getId());
+            contadorViajes++;
+        }
+    }
+
+    public static void consultarSaldo(Usuario usuario) {
+        System.out.println("\n=== CONSULTAR SALDO ===");
+        System.out.println("Saldo actual: " + usuario.getSaldo() + "€");
+
+        System.out.print("¿Desea aumentar su saldo? (Sí/No): ");
+        String respuesta = scanner.nextLine().trim().toLowerCase();
+
+        if (respuesta.equals("sí") || respuesta.equals("si")) {
+            System.out.print("Ingrese la cantidad a recargar: ");
+            int cantidad = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+
+            if (cantidad > 0) {
+                usuario.aumentarSaldo(cantidad);
+                System.out.println("Saldo actualizado: " + usuario.getSaldo() + "€");
+            } else {
+                System.out.println("Cantidad no válida. La recarga debe ser mayor a 0.");
+            }
+        } else {
+            System.out.println("No se ha realizado ninguna recarga.");
+        }
+    }
+
+    public static void generarAvisoProblema(Usuario usuario) {
+        System.out.println("\n=== GENERAR AVISO DE PROBLEMA ===");
+
+        // Obtener historial de viajes
+        List<Viaje> historial = usuario.getHistorialViajes();
+
+        // Verificar si el usuario tiene viajes
+        if (historial.isEmpty()) {
+            System.out.println("No tiene viajes registrados.");
+            return;
+        }
+
+        // Mostrar historial de viajes numerado
+        System.out.println("Seleccione un vehículo de su historial de viajes:");
+        for (int i = 0; i < historial.size(); i++) {
+            System.out.println((i + 1) + ". " + historial.get(i).getVehiculo().toString());
+        }
+
+        System.out.print("Ingrese el número del vehículo: ");
+        int opcion = scanner.nextInt();
+        scanner.nextLine(); // Limpiar buffer
+
+        // Validar opción
+        if (opcion < 1 || opcion > historial.size()) {
+            System.out.println("Selección inválida.");
+            return;
+        }
+
+        // Obtener vehículo seleccionado
+        Vehiculo vehiculoSeleccionado = historial.get(opcion - 1).getVehiculo();
+
+        // Solicitar descripción del problema
+        System.out.print("Describa el problema del vehículo: ");
+        String problema = scanner.nextLine();
+
+        // Registrar problema en el vehículo
+        vehiculoSeleccionado.setProblema(problema);
+        vehiculoSeleccionado.setDisponible(false);
+        System.out.println("Problema registrado correctamente para el vehículo: " + vehiculoSeleccionado);
+    }
+
+    public static void consultarMotoCercana() {
+        // Pedir ubicación del usuario
+        System.out.println("Ingrese su ubicación (x): ");
+        System.out.println("Usa el separador decimal de ,");
+        double xUsuario = scanner.nextDouble();
+        System.out.println("Ingrese su ubicación (y): ");
+        double yUsuario = scanner.nextDouble();
+        Coordenada ubicacionUsuario = new Coordenada(xUsuario, yUsuario);
+
+        Vehiculo motoCercana = null;
+        double distanciaMinima = Double.MAX_VALUE;
+
+        // Buscar la moto más cercana
+        for (Vehiculo vehiculo : vehiculos) {
+            if (vehiculo.getClass().getSimpleName().equalsIgnoreCase("moto") && vehiculo.isDisponible()) {
+                double distancia = calcularDistancia(ubicacionUsuario, vehiculo.getUbicacion());
+
+                if (distancia < distanciaMinima) {
+                    distanciaMinima = distancia;
+                    motoCercana = vehiculo;
+                }
+            }
+        }
+
+        // Mostrar resultado
+        if (motoCercana != null) {
+            System.out.println("\nLa moto más cercana es:");
+            System.out.println(motoCercana);
+            System.out.printf("Distancia aproximada: %.2f KM\n", distanciaMinima);
+        } else {
+            System.out.println("No hay motos disponibles en este momento.");
+        }
+    }
+
+    public static void reservarViaje(Usuario usuario) {
+        if (usuario.getTipoUsuario().equalsIgnoreCase("premium")) {
+            alquilarVehiculo(usuario);
+        }else{
+            System.out.println("Tienes que ser premium para esta función");
+        }
+    }
+
+    public static void mostrarVehiculosAsignados(Mecanico mecanico){
+        
+    }
+
+    public static void reportarReparacion(Mecanico mecanico){
+//TODO: Hacer
+    }
 }

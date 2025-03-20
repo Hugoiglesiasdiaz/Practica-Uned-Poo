@@ -12,18 +12,26 @@ public class Viaje
     private Vehiculo vehiculo;
     private Coordenada inicio;
     private Coordenada fin;
-    private float coste;
+    private double coste;
     /**
      * Constructor for objects of class Viaje
      */
     
-    public Viaje(int id, Usuario usuario, Vehiculo vehiculo, Coordenada inicio, Coordenada fin, float coste) {
+    public Viaje(int id, Usuario usuario, Vehiculo vehiculo, Coordenada inicio, Coordenada fin, double coste) {
         this.id = id;
         this.usuario = usuario;
         this.vehiculo = vehiculo;
         this.inicio = inicio;
         this.fin = fin;
         this.coste = coste;
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "Viaje [id=" + id + ", usuario=" + usuario + ", vehiculo=" + vehiculo + ", inicio=" + inicio + ", fin="
+                + fin + ", coste=" + coste + "]";
     }
 
 
@@ -57,12 +65,11 @@ public class Viaje
     public void setFin(Coordenada fin) {
         this.fin = fin;
     }
-    public float getCoste() {
+    public double getCoste() {
         return coste;
     }
     public void setCoste(float coste) {
         this.coste = coste;
     }
-
     
 }

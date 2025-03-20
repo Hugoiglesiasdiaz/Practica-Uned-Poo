@@ -17,14 +17,14 @@ public class Vehiculo
     /**
      * Constructor for objects of class Vehículo
      */
-    public Vehiculo(int id,String tipo,String estado,Coordenada ubicacion,float bateria)
+    public Vehiculo(int id,String tipo,String estado,Coordenada ubicacion,float bateria,boolean disponible)
     {
         this.id=id;
         this.estado=estado;
         this.ubicacion = ubicacion;
         this.bateria = bateria;
         this.problema="";
-        this.disponible = true;
+        this.disponible = disponible;
     }
 
     public void consultarBatería(){
@@ -57,6 +57,23 @@ public class Vehiculo
 
     public void setBateria(float bateria) {
         this.bateria = bateria;
+    }
+
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
+    @Override
+    public String toString() {
+        return id+  " " +getClass().getSimpleName();
+    }
+
+    public Coordenada getUbicacion() {
+        return ubicacion;
     }
     
     

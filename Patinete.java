@@ -12,8 +12,8 @@ public class Patinete extends Vehiculo
     /**
      * Constructor for objects of class Patinete
      */
-    public Patinete(int id, String tipo, String estado, Coordenada ubicacion, float bateria, int x, Base baseActual) {
-        super(id, tipo, estado, ubicacion, bateria);
+    public Patinete(int id, String tipo, String estado, Coordenada ubicacion, float bateria, int x, Base baseActual, boolean disponible) {
+        super(id, tipo, estado, ubicacion, bateria,disponible);
     
         this.baseActual = baseActual;
     }
