@@ -69,11 +69,23 @@ public class Vehiculo
 
     @Override
     public String toString() {
-        return id+  " " +getClass().getSimpleName();
+        return "ID "+id+  " " +getClass().getSimpleName();
     }
 
     public Coordenada getUbicacion() {
         return ubicacion;
+    }
+    
+    public void addProblema(String mensaje) {
+        if (this.problema == null || this.problema.trim().isEmpty()) {
+            this.problema = mensaje; // Si no hay problema previo, solo asigna el mensaje
+        } else {
+            this.problema += " | " + mensaje; // Agrega el nuevo mensaje con un separador
+        }
+    }
+
+    public void setUbicacion(Coordenada ubicacion) {
+        this.ubicacion = ubicacion;
     }
     
     

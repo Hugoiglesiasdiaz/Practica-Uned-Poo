@@ -11,7 +11,8 @@ public class Mecanico extends Trabajador
 {
     // instance variables - replace the example below with your own
     private Base base;
-    private List<Vehiculo> vehiculos = new ArrayList<>();
+    private List<Vehiculo> vehiculos;
+    private List<Vehiculo> vehiculosReparados = new ArrayList<>();
     /**
      * Constructor for objects of class Mecanico
      */
@@ -20,6 +21,7 @@ public class Mecanico extends Trabajador
         super(id, nombre, apellidos, dni);
         this.base = base;
         this.vehiculos = vehiculos;
+        
     }
     
     
@@ -28,13 +30,14 @@ public class Mecanico extends Trabajador
         super(id, nombre, apellidos, dni);
         this.base = null; // Inicializa en null si no se pasa
         this.vehiculos = new ArrayList<>(); // Inicializa una lista vacía
+        this.vehiculosReparados = new ArrayList<>();
     }
 
 
 
     public Mecanico(Trabajador trabajador){
         super(trabajador.getId(), trabajador.getNombre(), trabajador.getApellidos(), trabajador.getDni());
-        this.base = null; // Inicializa en null si no se pasa
+        this.base = null; 
         this.vehiculos = new ArrayList<>(); // Inicializa una lista vacía
     }
 
@@ -46,4 +49,44 @@ public class Mecanico extends Trabajador
     public void asignarBase(Base base){
         this.base = base;
     }
+
+
+
+    public List<Vehiculo> getVehiculos() {
+        return vehiculos;
+    }
+
+
+
+    public void setVehiculos(List<Vehiculo> vehiculos) {
+        this.vehiculos = vehiculos;
+    }
+
+    public void repararVehiculo(Vehiculo vehiculo){
+        this.vehiculos.remove(vehiculo);
+    }
+
+
+
+    public Base getBase() {
+        return base;
+    }
+
+
+
+    public void setBase(Base base) {
+        this.base = base;
+    }
+    
+    public void addVehiculoReparado(Vehiculo vehiculo){
+        vehiculosReparados.add(vehiculo);
+    }
+
+
+
+    public List<Vehiculo> getVehiculosReparados() {
+        return vehiculosReparados;
+    }
+
+    
 }

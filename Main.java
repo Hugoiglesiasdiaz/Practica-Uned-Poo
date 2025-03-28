@@ -180,18 +180,24 @@ public class Main {
         int opcion;
         do {
             System.out.println("\n=== MENÚ MECÁNICO ===");
-            System.out.println("1. Consultar vehículos asignados");
-            System.out.println("2. Reportar reparación completada");
-            System.out.println("3. Volver al menú principal");
+            System.out.println("1. Consultar vehículos y bases asignadas");
+            System.out.println("2. Recoger un vehículo para su reparación");
+            System.out.println("3. Desplazarse a una base para reparación");
+            System.out.println("4. Definir período de inactividad de una base o vehículo");
+            System.out.println("5. Generar factura de reparación");
+            System.out.println("6. Volver al menú principal");
             System.out.print("Seleccione una opción: ");
 
             opcion = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
 
             switch (opcion) {
-                case 1 -> mostrarVehiculosAsignados(mecanico);
+                case 1 -> mostrarVehiculosAsignados(mecanico); // Reutiliza el método existente
                 case 2 -> reportarReparacion(mecanico);
-                case 3 -> {
+                case 3 -> desplazarseABase(mecanico); 
+                case 4 -> definirPeriodoInactividad(mecanico);
+                case 5 -> generarFactura(mecanico);
+                case 6 -> {
                     System.out.println("Volviendo al menú principal...");
                     return;
                 }
@@ -203,26 +209,66 @@ public class Main {
 
     
 
-    private static void menuMantenimiento() {
+private static void menuMantenimiento() {
+    List<Mantenimiento> encargados = trabajadores.stream()
+        .filter(t -> t instanceof Mantenimiento)
+        .map(t -> (Mantenimiento) t)
+        .collect(Collectors.toList());
+
+    int opcionEncargado;
+    do {
+        System.out.println("\n=== LISTA DE ENCARGADOS DE MANTENIMIENTO ===");
+        for (int i = 0; i < encargados.size(); i++) {
+            System.out.println((i + 1) + ". " + encargados.get(i).getNombre() + " " + encargados.get(i).getApellidos());
+        }
+        System.out.println("0. Salir");
+
+        System.out.print("Seleccione un encargado de mantenimiento: ");
+        opcionEncargado = scanner.nextInt();
+        scanner.nextLine(); // Limpiar buffer
+
+        if (opcionEncargado == 0) {
+            System.out.println("Volviendo a la selección de tipo de usuario...\n");
+            identificarTipoUsuario();
+            return;
+        }
+
+        if (opcionEncargado < 1 || opcionEncargado > encargados.size()) {
+            System.out.println("Selección inválida. Intente de nuevo.");
+            continue;
+        }
+
+        Mantenimiento encargado = encargados.get(opcionEncargado - 1);
+        System.out.println("\nEncargado de mantenimiento seleccionado: " + encargado.getNombre());
+
         int opcion;
         do {
-            System.out.println("\n=== MENÚ MANTENIMIENTO ===");
-            System.out.println("1. Consultar estaciones asignadas");
-            System.out.println("2. Reportar estación revisada");
-            System.out.println("3. Salir");
+            System.out.println("\n=== MENÚ ENCARGADO DE MANTENIMIENTO ===");
+            System.out.println("1. Ver vehículos asignados para mantenimiento");
+            System.out.println("2. Recoger un vehículo para mantenimiento");
+            System.out.println("3. Definir período de inactividad de un vehículo");
+            System.out.println("4. Devolver un vehículo a una base o coordenadas");
+            System.out.println("5. Volver al menú principal");
             System.out.print("Seleccione una opción: ");
 
             opcion = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
 
             switch (opcion) {
-                case 1 -> System.out.println("Mostrando estaciones asignadas... (TODO)");
-                case 2 -> System.out.println("Reportando estación revisada... (TODO)");
-                case 3 -> System.out.println("Saliendo del sistema...");
+                case 1 -> verVehiculosMantenimiento(encargado);
+                case 2 -> recogerVehiculo(encargado);
+                case 3 -> definirPeriodoInactividad(encargado);
+                case 4 -> devolverVehiculo(encargado);
+                case 5 -> {
+                    System.out.println("Volviendo al menú principal...");
+                    return;
+                }
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
             }
-        } while (opcion != 3);
-    }
+        } while (true);
+    } while (true);
+}
+
 
     private static void inicializarVariables() {
         // Coordenadas de ejemplo
@@ -232,8 +278,8 @@ public class Main {
         Coordenada coord4 = new Coordenada(37.7749, -122.4194); // San Francisco
 
         // Añadir dos motos
-        vehiculos.add(new Moto(1, "Moto", "Disponible", coord1, 85.0f, 125, "125cc", true));
-        Moto moto = new Moto(2, "Moto", "En mantenimiento", coord2, 40.0f, 250, "250cc", false);
+        vehiculos.add(new Moto(1, "Moto", "Disponible", coord1, 85.0f, "125cc", true));
+        Moto moto = new Moto(2, "Moto", "En mantenimiento", coord2, 40.0f, "250cc", false);
         moto.setProblema("Fallo en el motor");
         vehiculos.add(moto);
 
@@ -241,7 +287,9 @@ public class Main {
         Base base2 = new Base(2, "Base Oeste", coord4, 40);
 
         // Añadir dos patinetes
-        vehiculos.add(new Patinete(3, "Patinete", "Disponible", coord1, 90.0f, 0, base1, true));
+        Patinete patinete = new Patinete(3, "Patinete", "Disponible", coord1, 90.0f, 0, base1, true);
+        patinete.setEstado("Sin batería");
+        vehiculos.add(patinete);
         vehiculos.add(new Patinete(4, "Patinete", "En uso", coord2, 30.0f, 0, base2, false));
         base1.addVehiculo(vehiculos.get(2));
         base2.addVehiculo(vehiculos.get(3));
@@ -265,11 +313,27 @@ public class Main {
         usuarios.add(usuario1);
         usuarios.add(usuario2);
 
-        trabajadores.add(new Mecanico(contadorId, "Hugo", "Iglesias", "56"));
+        Mecanico hugo = new  Mecanico(contadorId, "Hugo", "Iglesias", "56");
+        hugo.asignarVehiculo(moto);
+        hugo.setBase(base1);
+        trabajadores.add(hugo);
         contadorId++;
-        trabajadores.add(new Mantenimiento(contadorId, "Juan", "Villa", "09"));
+        trabajadores.add(new Mecanico(contadorId, "Alberto", "López", "647"));
+        contadorId++;
+
+        Mantenimiento Juan = new Mantenimiento(contadorId, "Juan", "Villa", "09");
+        trabajadores.add(Juan);
+        Juan.asignarVehiculo(patinete);
+        Moto moto2 = new Moto(7, "Moto", "En mantenimiento", coord2, 60.0f, "250cc", false);
+        Juan.asignarVehiculo(moto2);
+        vehiculos.add(moto2);
+
+        contadorId++;
+        trabajadores.add(new Mantenimiento(contadorId, "María", "Dominguez", "34"));
         contadorId++;
         trabajadores.add(new Administrador(contadorId, "Jose", "Bermudez", "82"));
+        contadorId++;
+        trabajadores.add(new Administrador(contadorId, "Manuel", "Amestoy", "82"));
         contadorId++;
     }
 
@@ -602,7 +666,7 @@ public class Main {
         for (Vehiculo v : vehiculos) {
             if (v.getProblema() != "") {
                 numErrores++;
-                System.out.println("Vehiculo Nº" + v.getId() + " Problemas:" + v.getProblema());
+                System.out.println("Vehiculo Nº" + v.getId() + " " + v.getClass().getSimpleName() + " " + " Problemas:" + v.getProblema());
             }
         }
         if (numErrores == 0) {
@@ -826,11 +890,24 @@ public class Main {
 
     private static void consultarVehiculosDisponibles() {
         for (Vehiculo v : vehiculos) {
-            if (v.isDisponible() == true) {
-                System.out.println("ID: " + v.getId() + " " + v.getClass().getSimpleName());
+            if (v.isDisponible()) {
+                String infoVehiculo = "ID: " + v.getId() + " " + v.getClass().getSimpleName();
+    
+                if (v instanceof Moto) {
+                    infoVehiculo += " - Ubicación: " + v.getUbicacion(); // Suponiendo que getCoordenadas() devuelve un String
+                } else if (v instanceof Patinete) {
+                    Patinete p = (Patinete) v;
+                    infoVehiculo += " - Base actual: " + (p.getBaseActual() != null ? p.getBaseActual().getNombre() : "Sin base asignada");
+                } else if (v instanceof Bicicleta) {
+                    Bicicleta b = (Bicicleta) v;
+                    infoVehiculo += " - Base actual: " + (b.getBaseActual() != null ? b.getBaseActual().getNombre() : "Sin base asignada");
+                }
+    
+                System.out.println(infoVehiculo);
             }
         }
     }
+    
 
     private static void alquilarVehiculo(Usuario usuario) {
         System.out.println("\n=== ALQUILER DE VEHÍCULO ===");
@@ -1120,10 +1197,413 @@ public class Main {
     }
 
     public static void mostrarVehiculosAsignados(Mecanico mecanico){
-        
+        System.out.println("VEHÍCULOS ASIGNADOS A " + mecanico.getNombre() + " " + mecanico.getApellidos());
+        List <Vehiculo> vehiculos = mecanico.getVehiculos();
+        int opcion = 1;
+        for(Vehiculo v : vehiculos){
+            System.out.println(" Nº "+opcion + " " +v.toString() + " " + v.getProblema());
+        }
     }
 
-    public static void reportarReparacion(Mecanico mecanico){
-//TODO: Hacer
+    public static void reportarReparacion(Mecanico mecanico) {
+        List<Vehiculo> vehiculosAsignados = mecanico.getVehiculos();
+    
+        if (vehiculosAsignados.isEmpty()) {
+            System.out.println("No tienes vehículos asignados para reparar.");
+            return;
+        }
+    
+        int opcionVehiculo;
+        do {
+            mostrarVehiculosAsignados(mecanico); // Método que muestra los vehículos
+            System.out.println("0. Volver al menú anterior");
+    
+            System.out.print("Seleccione un vehículo para reportar como reparado: ");
+            opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+    
+            if (opcionVehiculo == 0) {
+                System.out.println("Volviendo al menú mecánico...");
+                return;
+            }
+    
+            if (opcionVehiculo < 1 || opcionVehiculo > vehiculosAsignados.size()) {
+                System.out.println("Selección inválida. Intente de nuevo.");
+                continue;
+            }
+    
+            Vehiculo vehiculoReparado = vehiculosAsignados.get(opcionVehiculo - 1);
+        
+        // Verificar si el mecánico debe desplazarse a la base del vehículo
+        if (vehiculoReparado instanceof Bicicleta) {
+            Bicicleta bicicleta = (Bicicleta) vehiculoReparado;
+            System.out.println("El mecánico debe desplazarse a la base donde está la bicicleta " 
+                + bicicleta.getId());
+            mecanico.setBase(bicicleta.getBaseActual());
+        } else if (vehiculoReparado instanceof Patinete) {
+            Patinete patinete = (Patinete) vehiculoReparado;
+            System.out.println("El mecánico debe desplazarse a la base donde está el patinete " 
+                + patinete.getId());
+            mecanico.setBase(patinete.getBaseActual());
+        }
+    
+            // Una vez en la base, se repara el vehículo
+            vehiculoReparado.setEstado("Reparado");
+            vehiculoReparado.setDisponible(true);
+            // Eliminarlo de la lista de asignados y agregarlo a la lista de reparados
+            mecanico.repararVehiculo(vehiculoReparado);
+            mecanico.addVehiculoReparado(vehiculoReparado); // Método para registrar reparaciones
+    
+            System.out.println("El vehículo " + vehiculoReparado.getId() + 
+            " (Tipo: " + vehiculoReparado.getClass().getSimpleName() + ") ha sido reportado como reparado.");
+
+    
+            break; // Salir después de reportar una reparación
+        } while (true);
     }
+    
+    
+    
+    public static void desplazarseABase(Mecanico mecanico) {
+        // Verificar si el mecánico no tiene una base asignada
+        if (mecanico.getBase() == null) {
+            System.out.println("No tienes una base asignada actualmente.");
+            return;
+        }
+    
+        // Mostrar la base actual del mecánico
+        System.out.println("Actualmente estás en la base: " + mecanico.getBase().getNombre());
+    
+        // Verificar si hay bases disponibles
+        if (bases.isEmpty()) {
+            System.out.println("No hay bases disponibles para desplazarse.");
+            return;
+        }
+    
+        // Mostrar menú de selección de bases
+        System.out.println("Elige la base a la que quieres desplazarte:");
+        for (int i = 0; i < bases.size(); i++) {
+            System.out.println((i + 1) + ". " + bases.get(i).getNombre());
+        }
+        System.out.println("0. Mantenerse en la misma base");
+    
+        // Leer la selección del usuario
+        int opcionBase;
+        do {
+            System.out.print("Selecciona una opción: ");
+            while (!scanner.hasNextInt()) { // Validar entrada numérica
+                System.out.println("Por favor, ingresa un número válido.");
+                scanner.next(); // Limpiar entrada inválida
+            }
+            opcionBase = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+            
+            if (opcionBase < 0 || opcionBase > bases.size()) {
+                System.out.println("Opción inválida. Intenta de nuevo.");
+            }
+        } while (opcionBase < 0 || opcionBase > bases.size());
+    
+        // Si elige una base válida, actualizar la base del mecánico
+        if (opcionBase != 0) {
+            Base nuevaBase = bases.get(opcionBase - 1);
+            mecanico.setBase(nuevaBase);
+            System.out.println("Te has desplazado a la base: " + nuevaBase.getNombre());
+        } else {
+            System.out.println("Te has mantenido en la misma base.");
+        }
+    }
+    
+    public static void definirPeriodoInactividad(Mecanico mecanico) {
+        List<Vehiculo> vehiculosPendientes = mecanico.getVehiculos();
+    
+        // Verificar si el mecánico tiene vehículos pendientes
+        if (vehiculosPendientes.isEmpty()) {
+            System.out.println("No tienes vehículos pendientes de reparación.");
+            return;
+        }
+    
+        // Mostrar la lista de vehículos pendientes
+        System.out.println("Vehículos pendientes de reparación:");
+        for (int i = 0; i < vehiculosPendientes.size(); i++) {
+            Vehiculo vehiculo = vehiculosPendientes.get(i);
+            System.out.println((i + 1) + ". ID: " + vehiculo.getId() + " | Tipo: " + vehiculo.getClass().getSimpleName());
+        }
+        System.out.println("0. Cancelar");
+    
+        // Solicitar la selección del usuario
+        int opcionVehiculo;
+        do {
+            System.out.print("Selecciona un vehículo para definir su tiempo de inactividad: ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Por favor, ingresa un número válido.");
+                scanner.next();
+            }
+            opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+    
+            if (opcionVehiculo < 0 || opcionVehiculo > vehiculosPendientes.size()) {
+                System.out.println("Selección inválida. Intenta de nuevo.");
+            }
+        } while (opcionVehiculo < 0 || opcionVehiculo > vehiculosPendientes.size());
+    
+        // Si el usuario elige cancelar
+        if (opcionVehiculo == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+    
+        // Obtener el vehículo seleccionado
+        Vehiculo vehiculoSeleccionado = vehiculosPendientes.get(opcionVehiculo - 1);
+    
+        // Solicitar el tiempo de inactividad
+        System.out.print("Ingresa el tiempo de inactividad para el vehículo (ejemplo: '2 días'): ");
+        String tiempoInactividad = scanner.nextLine();
+    
+        // Guardar el tiempo de inactividad en el campo "problema"
+        vehiculoSeleccionado.addProblema("Tiempo de inactividad: " + tiempoInactividad);
+    
+        System.out.println("Tiempo de inactividad registrado para el vehículo ID " + vehiculoSeleccionado.getId() + ".");
+    }
+
+    public static void generarFactura(Mecanico mecanico) {
+        // Obtener la lista de vehículos reparados por el mecánico
+        List<Vehiculo> vehiculosReparados = mecanico.getVehiculosReparados();
+    
+        if (vehiculosReparados.isEmpty()) {
+            System.out.println("No tienes vehículos reparados para generar una factura.");
+            return;
+        }
+    
+        int opcionVehiculo;
+        do {
+            // Mostrar la lista de vehículos reparados
+            System.out.println("Lista de vehículos reparados:");
+            for (int i = 0; i < vehiculosReparados.size(); i++) {
+                Vehiculo vehiculo = vehiculosReparados.get(i);
+                System.out.println((i + 1) + ". " + vehiculo.getId() + vehiculo.getClass().getSimpleName());
+            }
+            System.out.println("0. Volver al menú anterior");
+    
+            // Leer la opción del usuario
+            System.out.print("Selecciona el vehículo para generar la factura (0 para volver): ");
+            opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+    
+            if (opcionVehiculo == 0) {
+                System.out.println("Volviendo al menú...");
+                return;
+            }
+    
+            if (opcionVehiculo < 1 || opcionVehiculo > vehiculosReparados.size()) {
+                System.out.println("Selección inválida. Intenta de nuevo.");
+                continue;
+            }
+    
+            // Obtener el vehículo seleccionado
+            Vehiculo vehiculoSeleccionado = vehiculosReparados.get(opcionVehiculo - 1);
+    
+            // Generar la factura
+            System.out.println("\n--- FACTURA ---");
+            System.out.println("Vehículo reparado: " + vehiculoSeleccionado.getClass().getSimpleName());
+            System.out.println("ID del vehículo: " + vehiculoSeleccionado.getId());
+            System.out.println("Estado: " + vehiculoSeleccionado.getEstado());
+            System.out.println("Fecha de reparación: " + new java.util.Date()); // Aquí puedes personalizar la fecha
+            System.out.println("Precio de la reparación: $100.00"); // Aquí puedes calcular el precio real
+            System.out.println("-----------------");
+    
+            break; // Salir después de generar la factura
+        } while (true);
+    }
+    
+
+    public static void verVehiculosMantenimiento(Mantenimiento encargado) {
+        System.out.println("\n=== VEHÍCULOS ASIGNADOS A " + encargado.getNombre() + " " + encargado.getApellidos() + " ===");
+        
+        List<Vehiculo> vehiculos = encargado.getVehiculos(); // Obtener vehículos asignados
+    
+        if (vehiculos.isEmpty()) {
+            System.out.println("No hay vehículos asignados para mantenimiento.");
+            return;
+        }
+    
+        int opcion = 1;
+        for (Vehiculo v : vehiculos) {
+            System.out.println(" Nº " + opcion + " " + v.toString() + " | Estado: " + v.getEstado() + " | Problema: " + v.getProblema());
+            opcion++;
+        }
+    }
+    
+    public static void recogerVehiculo(Mantenimiento encargado) {
+        List<Vehiculo> vehiculosAsignados = encargado.getVehiculos();
+    
+        if (vehiculosAsignados.isEmpty()) {
+            System.out.println("No tienes vehículos asignados para mantenimiento.");
+            return;
+        }
+    
+        int opcionVehiculo;
+        do {
+            verVehiculosMantenimiento(encargado); // Método que muestra los vehículos asignados
+            System.out.println("0. Volver al menú anterior");
+    
+            System.out.print("Seleccione un vehículo para reportar como mantenido: ");
+            opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+    
+            if (opcionVehiculo == 0) {
+                System.out.println("Volviendo al menú de mantenimiento...");
+                return;
+            }
+    
+            if (opcionVehiculo < 1 || opcionVehiculo > vehiculosAsignados.size()) {
+                System.out.println("Selección inválida. Intente de nuevo.");
+                continue;
+            }
+    
+            Vehiculo vehiculoMantenido = vehiculosAsignados.get(opcionVehiculo - 1);
+    
+            // Realizar el mantenimiento del vehículo
+            vehiculoMantenido.setEstado("Mantenimiento terminado");
+            vehiculoMantenido.setDisponible(true);
+            // Eliminarlo de la lista de asignados y agregarlo a la lista de mantenidos
+            encargado.realizarMantenimiento(vehiculoMantenido);
+
+            System.out.println("El vehículo " + vehiculoMantenido.getId() + 
+                " (Tipo: " + vehiculoMantenido.getClass().getSimpleName() + ") ha sido reportado como mantenido.");
+    
+            break; // Salir después de reportar un mantenimiento
+        } while (true);
+    }
+    
+    public static void definirPeriodoInactividad(Mantenimiento encargado) {
+        List<Vehiculo> vehiculosPendientes = encargado.getVehiculos();
+    
+        // Verificar si el mecánico tiene vehículos pendientes
+        if (vehiculosPendientes.isEmpty()) {
+            System.out.println("No tienes vehículos pendientes de reparación.");
+            return;
+        }
+    
+        // Mostrar la lista de vehículos pendientes
+        System.out.println("Vehículos pendientes de reparación:");
+        for (int i = 0; i < vehiculosPendientes.size(); i++) {
+            Vehiculo vehiculo = vehiculosPendientes.get(i);
+            System.out.println((i + 1) + ". ID: " + vehiculo.getId() + " | Tipo: " + vehiculo.getClass().getSimpleName());
+        }
+        System.out.println("0. Cancelar");
+    
+        // Solicitar la selección del usuario
+        int opcionVehiculo;
+        do {
+            System.out.print("Selecciona un vehículo para definir su tiempo de inactividad: ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Por favor, ingresa un número válido.");
+                scanner.next();
+            }
+            opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+    
+            if (opcionVehiculo < 0 || opcionVehiculo > vehiculosPendientes.size()) {
+                System.out.println("Selección inválida. Intenta de nuevo.");
+            }
+        } while (opcionVehiculo < 0 || opcionVehiculo > vehiculosPendientes.size());
+    
+        // Si el usuario elige cancelar
+        if (opcionVehiculo == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+    
+        // Obtener el vehículo seleccionado
+        Vehiculo vehiculoSeleccionado = vehiculosPendientes.get(opcionVehiculo - 1);
+    
+        // Solicitar el tiempo de inactividad
+        System.out.print("Ingresa el tiempo de inactividad para el vehículo (ejemplo: '2 días'): ");
+        String tiempoInactividad = scanner.nextLine();
+    
+        // Guardar el tiempo de inactividad en el campo "problema"
+        vehiculoSeleccionado.addProblema("Tiempo de inactividad: " + tiempoInactividad);
+    
+        System.out.println("Tiempo de inactividad registrado para el vehículo ID " + vehiculoSeleccionado.getId() + ".");
+    }
+
+    public static void devolverVehiculo(Mantenimiento encargado) {
+        List<Vehiculo> vehiculosMantenidos = encargado.getVehiculosReparados();
+    
+        if (vehiculosMantenidos.isEmpty()) {
+            System.out.println("No tienes vehículos mantenidos para devolver.");
+            return;
+        }
+    
+        int opcionVehiculo;
+        do {
+            System.out.println("\n=== VEHÍCULOS MANTENIDOS POR " + encargado.getNombre() + " ===");
+            for (int i = 0; i < vehiculosMantenidos.size(); i++) {
+                System.out.println((i + 1) + ". " + vehiculosMantenidos.get(i));
+            }
+            System.out.println("0. Volver al menú anterior");
+    
+            System.out.print("Seleccione un vehículo para devolver: ");
+            opcionVehiculo = scanner.nextInt();
+            scanner.nextLine(); // Limpiar buffer
+    
+            if (opcionVehiculo == 0) {
+                System.out.println("Volviendo al menú de mantenimiento...");
+                return;
+            }
+    
+            if (opcionVehiculo < 1 || opcionVehiculo > vehiculosMantenidos.size()) {
+                System.out.println("Selección inválida. Intente de nuevo.");
+                continue;
+            }
+    
+            Vehiculo vehiculoADevolver = vehiculosMantenidos.get(opcionVehiculo - 1);
+            String tipoVehiculo = vehiculoADevolver.getClass().getSimpleName(); // Suponiendo que hay un método getTipo()
+    
+            if (tipoVehiculo.equalsIgnoreCase("moto")) {
+                // Para motos, ingresar coordenadas en un solo paso
+            System.out.print("Ingrese las coordenadas de destino (ejemplo: 40.4170,-3.7045): ");
+            String[] finInput = scanner.nextLine().split(",");
+
+            try {
+                Coordenada fin = new Coordenada(Double.parseDouble(finInput[0]), Double.parseDouble(finInput[1]));
+                vehiculoADevolver.setUbicacion(fin);
+                System.out.println("La moto ha sido aparcada en las coordenadas: (" + fin.getX() + ", " + fin.getY() + ")");
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                System.out.println("Error: Formato inválido. Intente de nuevo.");
+                continue;
+            }
+    
+            } else if (tipoVehiculo.equalsIgnoreCase("patinete") || tipoVehiculo.equalsIgnoreCase("bicicleta")) {
+                // Para patinetes y bicicletas, elegir una base de la lista
+                System.out.println("\n=== LISTA DE BASES DISPONIBLES ===");
+                for (int i = 0; i < bases.size(); i++) {
+                    System.out.println((i + 1) + ". " + bases.get(i).getNombre());
+                }
+                System.out.print("Seleccione una base para estacionar: ");
+                int opcionBase = scanner.nextInt();
+                scanner.nextLine(); // Limpiar buffer
+    
+                if (opcionBase < 1 || opcionBase > bases.size()) {
+                    System.out.println("Selección inválida. Intente de nuevo.");
+                    continue;
+                }
+    
+                Base baseDestino = bases.get(opcionBase - 1);
+                if (vehiculoADevolver instanceof Patinete) {
+                    ((Patinete) vehiculoADevolver).setBaseActual(baseDestino);
+                    System.out.println("El patinete ha sido enviado a la base: " + baseDestino.getNombre());
+    
+                } else if (vehiculoADevolver instanceof Bicicleta) {
+                    ((Bicicleta) vehiculoADevolver).setBaseActual(baseDestino);
+                    System.out.println("La bicicleta ha sido enviada a la base: " + baseDestino.getNombre());
+                }
+            } else {
+                System.out.println("Tipo de vehículo no reconocido. No se puede devolver.");
+            }
+    
+        } while (true);
+    }
+    
+    
 }

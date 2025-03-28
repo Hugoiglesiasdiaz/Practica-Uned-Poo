@@ -15,5 +15,12 @@ public class Bicicleta extends Vehiculo
         super(id, tipo, estado, ubicacion, bateria,disponible);
         this.baseActual = baseActual;
     }
+    public Base getBaseActual() {
+        return baseActual;
+    }
+    public void setBaseActual(Base baseActual) {
+        this.baseActual = baseActual;
+    }
+    
     
 }

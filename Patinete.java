@@ -17,5 +17,12 @@ public class Patinete extends Vehiculo
     
         this.baseActual = baseActual;
     }
+    public Base getBaseActual() {
+        return baseActual;
+    }
+    public void setBaseActual(Base baseActual) {
+        this.baseActual = baseActual;
+    }
+    
     
 }
