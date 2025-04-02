@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * Write a description of class Viaje here.
@@ -13,27 +15,29 @@ public class Viaje
     private Coordenada inicio;
     private Coordenada fin;
     private double coste;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    
     /**
      * Constructor for objects of class Viaje
      */
     
-    public Viaje(int id, Usuario usuario, Vehiculo vehiculo, Coordenada inicio, Coordenada fin, double coste) {
+    public Viaje(int id, Usuario usuario, Vehiculo vehiculo, Coordenada inicio, Coordenada fin, double coste,LocalDate fechaInicio, LocalDate fechaFin) {
         this.id = id;
         this.usuario = usuario;
         this.vehiculo = vehiculo;
         this.inicio = inicio;
         this.fin = fin;
         this.coste = coste;
+        this.fechaInicio=fechaInicio;
+        this.fechaFin=fechaFin;
     }
-
-
 
     @Override
     public String toString() {
         return "Viaje [id=" + id + ", usuario=" + usuario + ", vehiculo=" + vehiculo + ", inicio=" + inicio + ", fin="
                 + fin + ", coste=" + coste + "]";
     }
-
 
     public int getId() {
         return id;
@@ -71,5 +75,14 @@ public class Viaje
     public void setCoste(float coste) {
         this.coste = coste;
     }
+
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public LocalDate getFechaFin() {
+        return fechaFin;
+    }
+    
     
 }

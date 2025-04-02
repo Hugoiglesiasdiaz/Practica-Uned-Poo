@@ -14,11 +14,11 @@ public class Trabajador extends Persona implements Comparable<Trabajador>{
     }
 
     public void asignarVehiculo(Vehiculo vehiculo){
-
+        
     }
 
     public void asignarBase(Base base){
-
+        
     }
 }
 

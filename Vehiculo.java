@@ -5,7 +5,7 @@
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class Vehiculo
+public abstract class Vehiculo
 {
     private int id;
     
@@ -88,5 +88,10 @@ public class Vehiculo
         this.ubicacion = ubicacion;
     }
     
-    
+    public void realizarViaje(int bateriaGastada){
+        this.bateria = bateria-bateriaGastada;
+        if(bateria<0){
+            bateria=0;
+        }
+    }
 }

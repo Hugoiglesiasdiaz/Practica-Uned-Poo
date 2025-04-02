@@ -11,7 +11,7 @@ public class Usuario extends Persona
 {
     // instance variables - replace the example below with your own
     private String tipoUsuario;
-    private int saldo;
+    private double saldo;
     private List<Viaje> historialViajes =new ArrayList<>();
     private int contadorViajes;
 
@@ -36,15 +36,15 @@ public class Usuario extends Persona
         return tipoUsuario;
     }
 
-    public int getSaldo() {
+    public double getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(int saldo) {
+    public void setSaldo(double saldo) {
         this.saldo = saldo;
     }
 
-    public void aumentarSaldo(int aumento){
+    public void aumentarSaldo(double aumento){
         this.saldo += aumento;
     }
 

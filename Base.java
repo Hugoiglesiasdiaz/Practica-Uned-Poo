@@ -15,6 +15,7 @@ public class Base {
     private int capacidad;
     private int ocupacionActual;
     private String problema; // Nuevo atributo para problemas
+    private int usos;
 
     public Base(int id, String nombre, Coordenada coordenadas, int capacidad,List<Vehiculo> vehiculos) {
         this.id = id;
@@ -23,6 +24,7 @@ public class Base {
         this.capacidad = capacidad;
         this.vehiculos=vehiculos;
         this.problema = ""; // Inicialmente sin problemas
+        this.usos=0;
     }
     
     
@@ -31,6 +33,7 @@ public class Base {
         this.nombre = nombre;
         this.coordenadas = coordenadas;
         this.capacidad = capacidad;
+        this.usos=0;
     }
 
     public void addVehiculo(Vehiculo vehiculo){
@@ -79,6 +82,27 @@ public class Base {
     public void setCoordenadas(Coordenada coordenadas) {
         this.coordenadas = coordenadas;
     }
+
+
+    public int getId() {
+        return id;
+    }
+
+
+    public void setId(int id) {
+        this.id = id;
+    }
     
+    public void aumentarUsos(){
+        this.usos++;
+
+    }
+
+
+    public int getUsos() {
+        return usos;
+    }
+
     
-}   
+}
+
