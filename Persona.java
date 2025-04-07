@@ -1,21 +1,24 @@
-
 /**
- * Write a description of class Persona here.
+ * Clase abstracta que representa una persona con los atributos básicos de identificación.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Esta clase sirve como base para crear tipos específicos de personas, como trabajadores, usuarios, etc.
+ * 
+ * @author Hugo
+ * @version 1.0
  */
-public abstract class Persona
-{
-    // instance variables - replace the example below with your own
+public abstract class Persona {
     private int id;
     private String nombre;
     private String apellidos;
     private String dni;
-    
 
     /**
-     * Constructor for objects of class Persona
+     * Constructor para crear una nueva persona con sus atributos.
+     * 
+     * @param id        Identificador único de la persona.
+     * @param nombre    Nombre de la persona.
+     * @param apellidos Apellidos de la persona.
+     * @param dni       Documento Nacional de Identidad de la persona.
      */
     public Persona(int id, String nombre, String apellidos, String dni) {
         this.id = id;
@@ -25,41 +28,74 @@ public abstract class Persona
     }
 
     /**
-     * An example of a method - replace this comment with your own
+     * Establece el nombre de la persona.
      * 
-     * @param  y   a sample parameter for a method
-     * @return     the sum of x and y 
+     * @param nombre Nombre de la persona.
      */
     public void setNombre(String nombre){
         this.nombre = nombre;
     }
-    
+
+    /**
+     * Obtiene el nombre de la persona.
+     * 
+     * @return Nombre de la persona.
+     */
     public String getNombre(){
         return this.nombre;
     }
-    
+
+    /**
+     * Obtiene el DNI de la persona.
+     * 
+     * @return DNI de la persona.
+     */
     public String getDni(){
         return this.dni;
     }
 
+    /**
+     * Obtiene el ID de la persona.
+     * 
+     * @return ID de la persona.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Establece el ID de la persona.
+     * 
+     * @param id Identificador único de la persona.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Obtiene los apellidos de la persona.
+     * 
+     * @return Apellidos de la persona.
+     */
     public String getApellidos() {
         return apellidos;
     }
 
+    /**
+     * Establece los apellidos de la persona.
+     * 
+     * @param apellidos Apellidos de la persona.
+     */
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
     }
 
+    /**
+     * Establece el DNI de la persona.
+     * 
+     * @param dni Documento Nacional de Identidad de la persona.
+     */
     public void setDni(String dni) {
         this.dni = dni;
     }
-    
 }

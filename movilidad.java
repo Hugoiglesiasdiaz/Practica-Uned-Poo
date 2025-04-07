@@ -15,18 +15,55 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+/**
+ * Clase principal que gestiona el sistema de movilidad. Administra los
+ * diferentes tipos de usuarios
+ * (administrador, usuario, mecánico, mantenimiento) y ofrece opciones para
+ * interactuar con vehículos, bases y trabajadores.
+ */
 public class Movilidad {
+
+    /** Lista de usuarios registrados en el sistema */
     private static List<Usuario> usuarios = new ArrayList<>();
+
+    /** Lista de trabajadores registrados en el sistema */
     private static List<Trabajador> trabajadores = new ArrayList<>();
+
+    /** Objeto Scanner para la entrada de datos desde la consola */
     private static Scanner scanner = new Scanner(System.in);
+
+    /** Contador para asignar IDs a los usuarios */
     private static int contadorId = 1;
+
+    /** Contador para asignar IDs a los viajes */
     private static int contadorIdViaje = 1;
-    private static String tipoUsuario; // Variable para almacenar el tipo de usuario
+
+    /** Tipo de usuario que está interactuando con el sistema */
+    private static String tipoUsuario;
+
+    /** Lista de vehículos registrados en el sistema */
     private static List<Vehiculo> vehiculos = new ArrayList<>();
+
+    /** Lista de bases de bicicletas y patinetes */
     private static List<Base> bases = new ArrayList<>();
+
+    /** Lista de viajes realizados */
     private static List<Viaje> viajes = new ArrayList<>();
+
+    /** Contador para asignar IDs a los vehículos */
     private static int contadorIdVehiculo;
 
+    private static int contadorIdBase = 3;
+
+    private static int DESCUENTO_PREMIUM = 20;
+
+    /**
+     * Método principal que inicia el sistema y gestiona la selección del tipo de
+     * usuario.
+     * Permite al usuario interactuar con el sistema según su tipo de usuario.
+     * 
+     * @param args Argumentos de línea de comando (no utilizados en este caso).
+     */
     public static void main(String[] args) {
         inicializarVariables();
         identificarTipoUsuario(); // Identifica si es Admin, Usuario, Mecánico o Mantenimiento
@@ -45,51 +82,95 @@ public class Movilidad {
         System.out.println("Programa finalizado.");
     }
 
+    /**
+     * Muestra el menú del Administrador y permite realizar diferentes acciones
+     * relacionadas con la gestión
+     * de usuarios, trabajadores, vehículos, entre otros.
+     */
     private static void menuAdministrador() {
-        int opcion;
-        do {
-            System.out.println("\n=== MENÚ ADMINISTRADOR ===");
-            System.out.println("1. Gestión de Usuarios");
-            System.out.println("2. Gestión de Trabajadores");
-            System.out.println("3. Estado de batería de todos los vehículos");
-            System.out.println("4. Avisos de problemas mecánicos en los vehículos");
-            System.out.println("5. Estado de las bases de bicicletas y patinetes");
-            System.out.println("6. Asignación de vehículos a mecánicos y mantenimiento");
-            System.out.println("7. Datos de todas las personas registradas");
-            System.out.println("8. Utilización de vehículos e importes asociados");
-            System.out.println("9. Listado de vehículos en uso en un momento/período determinado");
-            System.out.println("10. Actualización de la flota de vehículos");
-            System.out.println("11. Estadísticas sobre estaciones con mayor/menor demanda");
-            System.out.println("12. Promoción de usuarios a premium");
-            System.out.println("13. Salir");
-            System.out.print("Seleccione una opción: ");
+        // Filtra la lista de trabajadores para obtener solo los administradores
+        List<Administrador> administradores = trabajadores.stream()
+                .filter(t -> t instanceof Administrador)
+                .map(t -> (Administrador) t)
+                .collect(Collectors.toList());
 
-            opcion = scanner.nextInt();
+        int opcionAdministrador;
+        do {
+            System.out.println("\n=== LISTA DE ADMINISTRADORES ===");
+            for (int i = 0; i < administradores.size(); i++) {
+                System.out.println((i + 1) + ". " + administradores.get(i).getNombre() + " "
+                        + administradores.get(i).getApellidos());
+            }
+            System.out.println("0. Volver");
+            System.out.print("Seleccione un administrador: ");
+
+            opcionAdministrador = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
 
-            switch (opcion) {
-                case 1 -> menuGestionUsuarios();
-                case 2 -> menuGestionTrabajadores();
-                case 3 -> mostrarBateria();
-                case 4 -> mostrarProblemas();
-                case 5 -> mostrarBases();
-                case 6 -> asignar();
-                case 7 -> mostrarDatosUsuarios();
-                case 8 -> mostrarDatosUsoVehiculos();
-                case 9 -> mostrarVehiculosEnUso();
-                case 10 -> menuGestionVehiculos();
-                case 11 -> informacionBases();
-                case 12 -> gestionPremiun();
-                case 13 -> {
-                    System.out.println("Volviendo a la selección de tipo de usuario...");
-                    identificarTipoUsuario(); // Volver a la selección de usuario
-                    return;
-                }
-                default -> System.out.println("Opción inválida. Intente de nuevo.");
+            if (opcionAdministrador == 0) {
+                System.out.println("Volviendo a la selección de usuario...\n");
+                identificarTipoUsuario(); // Volver a la selección de usuario
+                return;
             }
-        } while (opcion != 13);
+
+            if (opcionAdministrador < 1 || opcionAdministrador > administradores.size()) {
+                System.out.println("Selección inválida. Intente de nuevo.");
+                continue;
+            }
+
+            Administrador administrador = administradores.get(opcionAdministrador - 1);
+            System.out.println("\nAdministrador seleccionado: " + administrador.getNombre());
+
+            int opcion;
+            do {
+                System.out.println("\n=== MENÚ ADMINISTRADOR ===");
+                System.out.println("1. Gestión de Usuarios");
+                System.out.println("2. Gestión de Trabajadores");
+                System.out.println("3. Estado de batería de todos los vehículos");
+                System.out.println("4. Avisos de problemas mecánicos en los vehículos");
+                System.out.println("5. Estado de las bases de bicicletas y patinetes");
+                System.out.println("6. Asignación de vehículos a mecánicos y mantenimiento");
+                System.out.println("7. Datos de todas las personas registradas");
+                System.out.println("8. Utilización de vehículos e importes asociados");
+                System.out.println("9. Listado de vehículos en uso en un momento/período determinado");
+                System.out.println("10. Actualización de la flota de vehículos");
+                System.out.println("11. Estadísticas sobre estaciones con mayor/menor demanda");
+                System.out.println("12. Promoción de usuarios a premium");
+                System.out.println("13. Salir");
+                System.out.print("Seleccione una opción: ");
+
+                opcion = scanner.nextInt();
+                scanner.nextLine(); // Limpiar buffer
+
+                switch (opcion) {
+                    case 1 -> menuGestionUsuarios();
+                    case 2 -> menuGestionTrabajadores();
+                    case 3 -> mostrarBateria();
+                    case 4 -> mostrarProblemas();
+                    case 5 -> mostrarBases();
+                    case 6 -> asignar();
+                    case 7 -> mostrarDatosUsuarios();
+                    case 8 -> mostrarDatosUsoVehiculos();
+                    case 9 -> mostrarVehiculosEnUso();
+                    case 10 -> menuGestionVehiculos();
+                    case 11 -> informacionBases();
+                    case 12 -> gestionPremiun();
+                    case 13 -> {
+                        System.out.println("Volviendo a la selección de tipo de usuario...");
+                        identificarTipoUsuario(); // Volver a la selección de usuario
+                        return;
+                    }
+                    default -> System.out.println("Opción inválida. Intente de nuevo.");
+                }
+            } while (opcion != 13);
+        } while (true);
     }
 
+    /**
+     * Muestra el menú para el Usuario, permitiéndole realizar acciones como
+     * alquilar vehículos,
+     * consultar saldo, informar problemas, etc.
+     */
     private static void menuUsuario() {
         int opcionAlumno;
         // Mostrar alumnos y opción de salir
@@ -155,7 +236,13 @@ public class Movilidad {
         } while (true); // El ciclo de mostrar usuarios se repetirá hasta que se elija 0
     }
 
+    /**
+     * Muestra el menú de opciones para el mecánico y permite gestionar las opciones
+     * asociadas
+     * a la reparación y gestión de vehículos.
+     */
     private static void menuMecanico() {
+        // Filtra a los trabajadores para obtener solo los de tipo "Mecanico"
         List<Mecanico> mecanicos = trabajadores.stream()
                 .filter(t -> t.getClass().getSimpleName().equals("Mecanico"))
                 .map(t -> (Mecanico) t)
@@ -163,6 +250,7 @@ public class Movilidad {
 
         int opcionMecanico;
         do {
+            // Muestra la lista de mecánicos disponibles
             System.out.println("\n=== LISTA DE MECÁNICOS ===");
             for (int i = 0; i < mecanicos.size(); i++) {
                 System.out
@@ -170,6 +258,7 @@ public class Movilidad {
             }
             System.out.println("0. Salir");
 
+            // Solicita la selección del mecánico
             System.out.print("Seleccione un mecánico: ");
             opcionMecanico = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
@@ -180,6 +269,7 @@ public class Movilidad {
                 return;
             }
 
+            // Validación de selección
             if (opcionMecanico < 1 || opcionMecanico > mecanicos.size()) {
                 System.out.println("Selección inválida. Intente de nuevo.");
                 continue;
@@ -188,6 +278,7 @@ public class Movilidad {
             Mecanico mecanico = mecanicos.get(opcionMecanico - 1);
             System.out.println("\nMecánico seleccionado: " + mecanico.getNombre());
 
+            // Menú de opciones para el mecánico
             int opcion;
             do {
                 System.out.println("\n=== MENÚ MECÁNICO ===");
@@ -218,7 +309,13 @@ public class Movilidad {
         } while (true);
     }
 
+    /**
+     * Muestra el menú de opciones para los encargados de mantenimiento y permite
+     * gestionar las opciones
+     * asociadas a la reparación y mantenimiento de vehículos.
+     */
     private static void menuMantenimiento() {
+        // Filtra a los trabajadores para obtener solo los de tipo "Mantenimiento"
         List<Mantenimiento> encargados = trabajadores.stream()
                 .filter(t -> t instanceof Mantenimiento)
                 .map(t -> (Mantenimiento) t)
@@ -226,6 +323,7 @@ public class Movilidad {
 
         int opcionEncargado;
         do {
+            // Muestra la lista de encargados de mantenimiento disponibles
             System.out.println("\n=== LISTA DE ENCARGADOS DE MANTENIMIENTO ===");
             for (int i = 0; i < encargados.size(); i++) {
                 System.out.println(
@@ -233,6 +331,7 @@ public class Movilidad {
             }
             System.out.println("0. Salir");
 
+            // Solicita la selección del encargado de mantenimiento
             System.out.print("Seleccione un encargado de mantenimiento: ");
             opcionEncargado = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
@@ -243,6 +342,7 @@ public class Movilidad {
                 return;
             }
 
+            // Validación de selección
             if (opcionEncargado < 1 || opcionEncargado > encargados.size()) {
                 System.out.println("Selección inválida. Intente de nuevo.");
                 continue;
@@ -251,6 +351,7 @@ public class Movilidad {
             Mantenimiento encargado = encargados.get(opcionEncargado - 1);
             System.out.println("\nEncargado de mantenimiento seleccionado: " + encargado.getNombre());
 
+            // Menú de opciones para el encargado de mantenimiento
             int opcion;
             do {
                 System.out.println("\n=== MENÚ ENCARGADO DE MANTENIMIENTO ===");
@@ -279,6 +380,11 @@ public class Movilidad {
         } while (true);
     }
 
+    /**
+     * Inicializa las variables y datos de ejemplo para el sistema de gestión de
+     * vehículos, trabajadores
+     * y viajes. Este método se ejecuta al inicio del sistema para poblar los datos.
+     */
     private static void inicializarVariables() {
         // Coordenadas de ejemplo
         Coordenada coord1 = new Coordenada(40.4168, -3.7038); // Madrid
@@ -292,27 +398,25 @@ public class Movilidad {
         moto.setProblema("Fallo en el motor");
         vehiculos.add(moto);
 
+        // Crear y añadir bases
         Base base1 = new Base(1, "Base Este", coord3, 25);
         Base base2 = new Base(2, "Base Oeste", coord4, 40);
 
-        // Añadir dos patinetes
-        Patinete patinete = new Patinete(3, "Patinete", "Disponible", coord1, 90.0f, 0, base1, true);
+        // Añadir patinetes
+        Patinete patinete = new Patinete(3, "Patinete", "Disponible", coord1, 00.0f, 0, base1, true);
+        base1.aumentarUsos();
         patinete.setEstado("Sin batería");
         vehiculos.add(patinete);
-        vehiculos.add(new Patinete(4, "Patinete", "En uso", coord2, 30.0f, 0, base2, false));
+        vehiculos.add(new Patinete(4, "Patinete", "Batería baja", coord2, 20.0f, 0, base2, false));
+        base2.aumentarUsos();
         base1.addVehiculo(vehiculos.get(2));
         base2.addVehiculo(vehiculos.get(3));
 
-        // Añadir dos bicicletas
+        // Añadir bicicletas
         vehiculos.add(new Bicicleta(5, "Bicicleta", "Disponible", coord1, 100.0f, base1, true));
         vehiculos.add(new Bicicleta(6, "Bicicleta", "Averiada", coord2, 50.0f, base2, true));
 
         base1.addVehiculo(vehiculos.get(4));
-        base1.aumentarUsos();
-        base1.aumentarUsos();
-        base1.aumentarUsos();
-        base1.aumentarUsos();
-        base1.aumentarUsos();
         base1.aumentarUsos();
         base2.addVehiculo(vehiculos.get(5));
         base2.aumentarUsos();
@@ -320,20 +424,22 @@ public class Movilidad {
         bases.add(base1);
         bases.add(base2);
 
+        // Crear y añadir usuarios
         Usuario usuario1 = new Usuario(1, "Juan", "Pérez", "12345678L", "Estándar");
         Usuario usuario2 = new Usuario(2, "María", "López", "87654321M", "Premium");
 
+        // Crear viajes de ejemplo
         for (int i = 0; i < 10; i++) {
-            LocalDate fechaInicio = LocalDate.of(2025, 3, i + 1); // 1 al 10 de marzo
+            LocalDate fechaInicio = LocalDate.of(2025, 3, i + 15); // 15 al 25 de marzo
             LocalDate fechaFin = fechaInicio.plusDays(1); // Viajes de un día
-            Viaje viaje = new Viaje(contadorIdViaje, usuario1, vehiculos.get(i % vehiculos.size()), 
-                                    coord1, coord2, 100 + (i * 10), fechaInicio, fechaFin);
+            Viaje viaje = new Viaje(contadorIdViaje, usuario1, vehiculos.get(i % vehiculos.size()),
+                    coord1, coord2, 100 + (i * 10), fechaInicio, fechaFin);
             usuario1.realizarViaje(viaje);
             viajes.add(viaje);
             contadorIdViaje++;
         }
 
-        contadorIdViaje++;
+        // Añadir mecánicos
         Mecanico hugo = new Mecanico(contadorId, "Hugo", "Iglesias", "56");
         hugo.asignarVehiculo(moto);
         hugo.setBase(base1);
@@ -342,6 +448,7 @@ public class Movilidad {
         trabajadores.add(new Mecanico(contadorId, "Alberto", "López", "647"));
         contadorId++;
 
+        // Añadir encargados de mantenimiento
         Mantenimiento Juan = new Mantenimiento(contadorId, "Juan", "Villa", "09");
         trabajadores.add(Juan);
         Juan.asignarVehiculo(patinete);
@@ -356,6 +463,8 @@ public class Movilidad {
         contadorId++;
         trabajadores.add(new Administrador(contadorId, "Manuel", "Amestoy", "82"));
         contadorId++;
+
+        // Crear más viajes para el usuario2
         LocalDate inicio = LocalDate.of(2025, 3, 22);
         LocalDate fin = LocalDate.of(2025, 4, 6);
         Viaje viaje2 = new Viaje(contadorIdViaje, usuario2, moto2, coord3, coord4, contadorId, inicio, fin);
@@ -365,11 +474,17 @@ public class Movilidad {
         contadorIdVehiculo = vehiculos.size() + 1;
         usuarios.add(usuario1);
         usuarios.add(usuario2);
+        Administrador administradorHugo = new Administrador(contadorId, "Hugo", "Iglesias Díaz", "64738475X");
+        trabajadores.add(administradorHugo);
     }
 
-    // ==============================
-    // MÉTODO PARA IDENTIFICAR EL TIPO DE USUARIO
-    // ==============================
+    /**
+     * Método para identificar el tipo de usuario que se selecciona en el sistema.
+     * Muestra un menú de opciones donde el usuario elige su tipo de usuario
+     * (Usuario, Administrador, Mecánico, Encargado de Mantenimiento, o Salir).
+     * Si se selecciona un tipo de usuario no válido, se establece como "Usuario"
+     * por defecto.
+     */
     private static void identificarTipoUsuario() {
         System.out.println("Seleccione su tipo de usuario:");
         System.out.println("1. Usuario");
@@ -394,12 +509,13 @@ public class Movilidad {
         if (opcion != 5) {
             System.out.println("Tipo de usuario seleccionado: " + tipoUsuario);
         }
-
     }
 
-    // ==============================
-    // SUBMENÚ DE GESTIÓN DE USUARIOS
-    // ==============================
+    /**
+     * Submenú de gestión de usuarios. Permite realizar operaciones de alta, baja,
+     * modificación y listado de usuarios.
+     * Presenta un menú de opciones y ejecuta la operación seleccionada.
+     */
     private static void menuGestionUsuarios() {
         int opcion;
         do {
@@ -424,9 +540,11 @@ public class Movilidad {
         } while (opcion != 5);
     }
 
-    // ==============================
-    // SUBMENÚ DE GESTIÓN DE TRABAJADORES
-    // ==============================
+    /**
+     * Submenú de gestión de trabajadores. Permite realizar operaciones de alta,
+     * baja, modificación y listado de trabajadores.
+     * Presenta un menú de opciones y ejecuta la operación seleccionada.
+     */
     private static void menuGestionTrabajadores() {
         int opcion;
         do {
@@ -451,9 +569,14 @@ public class Movilidad {
         } while (opcion != 5);
     }
 
-    // ==============================
-    // MÉTODO PARA DAR DE ALTA UN USUARIO
-    // ==============================
+    /**
+     * Método para dar de alta un usuario. Solicita los datos personales del usuario
+     * (nombre, apellidos, DNI),
+     * y el tipo de usuario (Estándar o Premium), luego agrega el usuario a la
+     * lista.
+     * 
+     * Si el tipo de usuario es inválido, no se agrega el usuario.
+     */
     private static void altaUsuario() {
         System.out.print("Ingrese nombre: ");
         String nombre = scanner.nextLine();
@@ -479,15 +602,17 @@ public class Movilidad {
 
         if (tipoUsuario != null) {
             Usuario nuevoUsuario = new Usuario(contadorId, nombre, apellidos, dni, tipoUsuario);
+            nuevoUsuario.setSaldo(100);
             usuarios.add(nuevoUsuario);
             System.out.println("Usuario agregado correctamente.");
             contadorId++;
         }
     }
 
-    // ==============================
-    // MÉTODO PARA DAR DE BAJA UN USUARIO
-    // ==============================
+    /**
+     * Método para dar de baja un usuario. Solicita el DNI del usuario a eliminar,
+     * busca al usuario en la lista y, si se encuentra, lo elimina.
+     */
     private static void bajaUsuario() {
         System.out.print("Ingrese el DNI del usuario a eliminar: ");
         String dni = scanner.nextLine();
@@ -501,9 +626,11 @@ public class Movilidad {
         }
     }
 
-    // ==============================
-    // MÉTODO PARA MODIFICAR UN USUARIO
-    // ==============================
+    /**
+     * Método para modificar un usuario. Solicita el DNI del usuario a modificar,
+     * y permite cambiar el tipo de usuario entre Estándar y Premium.
+     * Si el tipo de usuario es inválido, no se realiza ninguna modificación.
+     */
     private static void modificarUsuario() {
         System.out.print("Ingrese el DNI del usuario a modificar: ");
         String dni = scanner.nextLine();
@@ -535,9 +662,11 @@ public class Movilidad {
         }
     }
 
-    // ==============================
-    // MÉTODO PARA LISTAR LOS USUARIOS
-    // ==============================
+    /**
+     * Método para listar todos los usuarios registrados en el sistema.
+     * Muestra la información de cada usuario, o un mensaje si no hay usuarios
+     * registrados.
+     */
     private static void listarUsuarios() {
         if (usuarios.isEmpty()) {
             System.out.println("No hay usuarios registrados.");
@@ -549,9 +678,14 @@ public class Movilidad {
         }
     }
 
-    // ==============================
-    // MÉTODO PARA BUSCAR USUARIO POR DNI
-    // ==============================
+    /**
+     * Método para buscar un usuario por su DNI. Recorre la lista de usuarios y
+     * devuelve el usuario que coincide con el DNI proporcionado.
+     * 
+     * @param dni El DNI del usuario a buscar.
+     * @return El objeto Usuario si se encuentra, o null si no se encuentra el
+     *         usuario.
+     */
     private static Usuario buscarUsuarioPorDni(String dni) {
         for (Usuario u : usuarios) {
             if (u.getDni().equalsIgnoreCase(dni)) {
@@ -561,9 +695,14 @@ public class Movilidad {
         return null;
     }
 
-    // ==============================
-    // MÉTODO PARA DAR DE ALTA UN TRABAJADOR
-    // ==============================
+    /**
+     * Método para dar de alta un trabajador. Solicita los datos personales del
+     * trabajador (nombre, apellidos, DNI),
+     * y el rol (Mecánico, Mantenimiento o Administrador). Luego agrega el
+     * trabajador a la lista.
+     * 
+     * Si el rol es inválido, no se agrega el trabajador.
+     */
     private static void altaTrabajador() {
         System.out.print("Ingrese nombre: ");
         String nombre = scanner.nextLine();
@@ -606,6 +745,13 @@ public class Movilidad {
     // ==============================
     // MÉTODO PARA DAR DE BAJA UN TRABAJADOR
     // ==============================
+    /**
+     * Elimina un trabajador de la lista de trabajadores según su DNI.
+     * Solicita al usuario el DNI del trabajador y lo busca en la lista.
+     * Si el trabajador es encontrado, se elimina de la lista y se imprime un
+     * mensaje de confirmación.
+     * Si no se encuentra el trabajador, se muestra un mensaje de error.
+     */
     private static void bajaTrabajador() {
         System.out.print("Ingrese el DNI del trabajador a eliminar: ");
         String dni = scanner.nextLine();
@@ -622,6 +768,13 @@ public class Movilidad {
     // ==============================
     // MÉTODO PARA MODIFICAR UN TRABAJADOR
     // ==============================
+    /**
+     * Modifica el rol de un trabajador en la lista de trabajadores según su DNI.
+     * Solicita al usuario el DNI del trabajador a modificar y lo busca en la lista.
+     * Si el trabajador es encontrado, permite seleccionar un nuevo rol entre
+     * mecánico, mantenimiento o administrador.
+     * Si el trabajador no se encuentra, muestra un mensaje de error.
+     */
     private static void modificarTrabajador() {
         System.out.print("Ingrese el DNI del trabajador a modificar: ");
         String dni = scanner.nextLine();
@@ -662,6 +815,11 @@ public class Movilidad {
     // ==============================
     // MÉTODO PARA LISTAR LOS TRABAJADORES
     // ==============================
+    /**
+     * Muestra todos los trabajadores registrados en la lista.
+     * Si no hay trabajadores registrados, muestra un mensaje indicando que no hay
+     * trabajadores.
+     */
     private static void listarTrabajadores() {
         if (trabajadores.isEmpty()) {
             System.out.println("No hay trabajadores registrados.");
@@ -676,6 +834,12 @@ public class Movilidad {
     // ==============================
     // MÉTODO PARA BUSCAR TRABAJADOR POR DNI
     // ==============================
+    /**
+     * Busca un trabajador en la lista de trabajadores por su DNI.
+     * 
+     * @param dni El DNI del trabajador a buscar.
+     * @return El trabajador encontrado o null si no se encuentra.
+     */
     private static Trabajador buscarTrabajadorPorDni(String dni) {
         for (Trabajador t : trabajadores) {
             if (t.getDni().equalsIgnoreCase(dni)) {
@@ -685,12 +849,22 @@ public class Movilidad {
         return null;
     }
 
+    /**
+     * Muestra el estado de la batería de todos los vehículos registrados.
+     */
     private static void mostrarBateria() {
         for (Vehiculo v : vehiculos) {
             v.consultarBatería();
         }
     }
 
+    /**
+     * Muestra los problemas encontrados en los vehículos.
+     * Si un vehículo tiene un problema registrado, se muestra el detalle del
+     * problema.
+     * Si no hay problemas, se muestra un mensaje indicando que no hay errores en
+     * los vehículos.
+     */
     private static void mostrarProblemas() {
         int numErrores = 0;
         for (Vehiculo v : vehiculos) {
@@ -705,12 +879,22 @@ public class Movilidad {
         }
     }
 
+    /**
+     * Muestra el estado de todas las bases registradas.
+     */
     private static void mostrarBases() {
         for (Base base : bases) {
             base.mostrarEstado();
         }
     }
 
+    /**
+     * Permite asignar trabajadores a roles específicos, como mecánico o
+     * mantenimiento.
+     * El usuario puede seleccionar entre asignar a un mecánico o a un trabajador de
+     * mantenimiento,
+     * o salir del menú de asignación.
+     */
     private static void asignar() {
         while (true) {
             System.out.println("\n=== Asignación ===");
@@ -739,6 +923,11 @@ public class Movilidad {
         }
     }
 
+    /**
+     * Muestra la lista de mecánicos registrados.
+     * Si no hay mecánicos, muestra un mensaje indicando que no hay mecánicos
+     * disponibles.
+     */
     private static void mostrarMecanicos() {
         int i = 0;
         System.out.println("Lista Mecánicos");
@@ -753,6 +942,11 @@ public class Movilidad {
         }
     }
 
+    /**
+     * Muestra la lista de trabajadores de mantenimiento registrados.
+     * Si no hay trabajadores de mantenimiento, muestra un mensaje indicando que no
+     * hay trabajadores de mantenimiento disponibles.
+     */
     private static void mostrarMantenimiento() {
         int i = 0;
         System.out.println("Lista Mantenimiento");
@@ -767,6 +961,13 @@ public class Movilidad {
         }
     }
 
+    /**
+     * Asigna un vehículo a un mecánico seleccionado.
+     * Solicita al usuario seleccionar el ID del mecánico y luego el vehículo que se
+     * desea asignar.
+     * 
+     * @param mecanicoSeleccionado El mecánico al que se le asignará un vehículo.
+     */
     private static void asignarMecanico() {
         if (trabajadores.isEmpty())
             return;
@@ -799,21 +1000,29 @@ public class Movilidad {
         }
     }
 
+    /**
+     * Asigna un vehículo a un trabajador de mantenimiento seleccionado.
+     * Solicita al usuario seleccionar el ID del trabajador de mantenimiento y luego
+     * el vehículo que se desea asignar.
+     * 
+     * @param encargadoSeleccionado El trabajador de mantenimiento al que se le
+     *                             asignará un vehículo.
+     */
     private static void asignarMantenimiento() {
         if (trabajadores.isEmpty())
             return;
 
-        System.out.print("Seleccione el ID del mecánico: ");
-        int idMecanico = scanner.nextInt();
+        System.out.print("Seleccione el ID del encargado: ");
+        int idEncargado = scanner.nextInt();
         scanner.nextLine();
 
-        Mecanico mecanicoSeleccionado = (Mecanico) trabajadores.stream()
-                .filter(m -> m instanceof Mecanico && m.getId() == idMecanico)
+        Mantenimiento encargadoSeleccionado = (Mantenimiento) trabajadores.stream()
+                .filter(m -> m instanceof Mantenimiento && m.getId() == idEncargado)
                 .findFirst()
                 .orElse(null);
 
-        if (mecanicoSeleccionado == null) {
-            System.out.println("Mecánico no encontrado.");
+        if (encargadoSeleccionado == null) {
+            System.out.println("encargado no encontrado.");
             return;
         }
 
@@ -824,11 +1033,14 @@ public class Movilidad {
         scanner.nextLine();
 
         switch (opcion) {
-            case 1 -> asignarVehiculo(mecanicoSeleccionado);
+            case 1 -> asignarVehiculo(encargadoSeleccionado);
             default -> System.out.println("Opción inválida.");
         }
     }
 
+    /**
+     * @param trabajador
+     */
     private static void asignarVehiculo(Trabajador trabajador) {
         if (vehiculos.isEmpty()) {
             System.out.println("No hay vehículos disponibles.");
@@ -839,7 +1051,7 @@ public class Movilidad {
         for (int i = 0; i < vehiculos.size(); i++) {
             Vehiculo v = vehiculos.get(i);
             System.out.println((i + 1) + ". " + v.getClass().getSimpleName() + " - ID: " + v.getId() +
-                    ", Estado: " + v.getEstado() + ", Batería: " + v.getBateria() + "%");
+                    ", Estado: " + v.getEstado() + " Problema:" + v.getProblema() + ", Batería: " + v.getBateria() + "%");
         }
 
         System.out.print("Seleccione un vehículo: ");
@@ -858,6 +1070,9 @@ public class Movilidad {
                 " asignado a " + trabajador.getNombre());
     }
 
+    /**
+     * @param trabajador
+     */
     private static void asignarBase(Trabajador trabajador) {
         if (!(trabajador instanceof Mecanico)) {
             System.out.println("Solo los mecánicos pueden ser asignados a una base.");
@@ -942,168 +1157,191 @@ public class Movilidad {
         }
     }
 
+    /**
+     * @param usuario
+     */
     private static void alquilarVehiculo(Usuario usuario) {
         System.out.println("\n=== ALQUILER DE VEHÍCULO ===");
 
         try {
+            /// Fecha de inicio
+            LocalDate fechaInicio;
+            if (usuario.getTipoUsuario().equalsIgnoreCase("premium")) {
+                System.out.print("Ingrese la fecha de inicio (YYYY-MM-DD): ");
+                String fechaInicioInput = scanner.nextLine();
+                fechaInicio = LocalDate.parse(fechaInicioInput);
+            } else {
+                fechaInicio = LocalDate.now();
+                System.out.println("Fecha de inicio: " + fechaInicio);
+            }
+
+            // Solicitar fecha de fin al usuario
+            System.out.print("Ingrese la fecha de fin (YYYY-MM-DD): ");
+            String fechaFinInput = scanner.nextLine();
+            LocalDate fechaFin = LocalDate.parse(fechaFinInput);
+
             // Comprobar saldo del usuario
             double saldoDisponible = usuario.getSaldo();
             if (saldoDisponible < 0) {
-                System.out.println("No puedes alquilar el vehículo, tu saldo es negativo.");
+                System.out.println(" No puedes alquilar un vehículo porque tu saldo es negativo.");
                 return;
             }
 
             // Mostrar lista de vehículos disponibles
-            System.out.println("Vehículos disponibles:");
+            System.out.println("\n Vehículos disponibles:");
             for (int i = 0; i < vehiculos.size(); i++) {
                 if (vehiculos.get(i).isDisponible()) {
-                    System.out.println((i + 1) + ". " + vehiculos.get(i).getId() + " "
+                    System.out.println("  " + (i + 1) + ". " + vehiculos.get(i).getId() + " - "
                             + vehiculos.get(i).getClass().getSimpleName());
                 }
             }
 
             // Seleccionar vehículo
-            System.out.print("Seleccione el número del vehículo que desea alquilar: ");
+            System.out.print("\nIngrese el número del vehículo que desea alquilar: ");
             int opcionVehiculo = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
 
             if (opcionVehiculo < 1 || opcionVehiculo > vehiculos.size()) {
-                System.out.println("Selección inválida. Intente de nuevo.");
+                System.out.println(" Opción inválida. Inténtelo nuevamente.");
                 return;
             }
 
             Vehiculo vehiculoSeleccionado = vehiculos.get(opcionVehiculo - 1);
-            System.out.println("Has seleccionado: " + vehiculoSeleccionado.getClass().getSimpleName());
+            System.out.println("\n Has seleccionado: " + vehiculoSeleccionado.getClass().getSimpleName());
 
             double coste = 0;
-            if (vehiculoSeleccionado.getClass().getSimpleName().equals("Moto")) {
-                try {
-                    System.out.print("Ingrese las coordenadas de inicio (ejemplo: 40.4168,-3.7038): ");
-                    String[] inicioInput = scanner.nextLine().split(",");
-                    Coordenada inicio = new Coordenada(Double.parseDouble(inicioInput[0]),
-                            Double.parseDouble(inicioInput[1]));
+            Coordenada inicio = null;
+            Coordenada fin = null;
 
-                    System.out.print("Ingrese las coordenadas de destino (ejemplo: 40.4170,-3.7045): ");
+            if (vehiculoSeleccionado instanceof Moto) {
+                try {
+                    System.out.print("\n Ingrese las coordenadas de inicio (ejemplo: 40.4168,-3.7038): ");
+                    String[] inicioInput = scanner.nextLine().split(",");
+                    inicio = new Coordenada(Double.parseDouble(inicioInput[0]), Double.parseDouble(inicioInput[1]));
+
+                    System.out.print(" Ingrese las coordenadas de destino (ejemplo: 40.4170,-3.7045): ");
                     String[] finInput = scanner.nextLine().split(",");
-                    Coordenada fin = new Coordenada(Double.parseDouble(finInput[0]), Double.parseDouble(finInput[1]));
+                    fin = new Coordenada(Double.parseDouble(finInput[0]), Double.parseDouble(finInput[1]));
 
                     double distancia = calcularDistancia(inicio, fin);
                     double tarifaBase = 1.5;
                     double costePorKm = 0.5;
-                    coste = Math.round((tarifaBase + (distancia * costePorKm)) * 100.0) / 100.0;
+                    coste = tarifaBase + (distancia * costePorKm);
 
-                    // Permitir el alquiler aunque el saldo no sea suficiente, registrando la deuda
+                    // Aplicar descuento si el usuario es premium
+                    if (usuario.getTipoUsuario().equalsIgnoreCase("premium")) {
+                        double descuento = (coste * DESCUENTO_PREMIUM) / 100.0;
+                        coste = Math.round((coste - descuento) * 100.0) / 100.0;
+                        System.out.println("\n Descuento aplicado: " + DESCUENTO_PREMIUM + "% (Usuario Premium)");
+                    }
+
+                    // Registrar saldo del usuario
                     usuario.setSaldo(saldoDisponible - coste);
 
+                    System.out.println("\n Costo final del viaje: " + coste + "€");
                     if (usuario.getSaldo() < 0) {
-                        System.out.println("Tu saldo ha quedado en deuda: " + usuario.getSaldo()
-                                + "€. No podrás alquilar otro vehículo hasta que recargues.");
+                        System.out.println(" Tu saldo ha quedado en deuda: "
+                                + "No podrás alquilar otro vehículo hasta que recargues.");
                     }
 
-                    DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-                    System.out.print("Ingrese la fecha de inicio del viaje (formato: dd/MM/yyyy): ");
-                    String fechaInicioInput = scanner.nextLine();
-                    LocalDate fechaInicio = LocalDate.parse(fechaInicioInput, formatoFecha);
-
-                    System.out.print("Ingrese la fecha de fin del viaje (formato: dd/MM/yyyy): ");
-                    String fechaFinInput = scanner.nextLine();
-                    LocalDate fechaFin = LocalDate.parse(fechaFinInput, formatoFecha);
-
-                    if (fechaFin.isBefore(fechaInicio)) {
-                        System.out.println("Error: La fecha de fin no puede ser anterior a la de inicio.");
-                        return;
-                    }
-
-                    vehiculoSeleccionado.realizarViaje(30);
-                    System.out.println("Moto reservada desde " + inicio + " hasta " + fin);
-                    System.out.println("Costo estimado del viaje: " + coste + "€");
-
-                    Viaje viaje = new Viaje(opcionVehiculo, usuario, vehiculoSeleccionado, inicio, fin, coste,
-                            fechaInicio, fechaFin);
+                    // Crear el objeto viaje y agregarlo a la lista de viajes del usuario
+                    Viaje nuevoViaje = new Viaje(
+                            contadorIdViaje, // Asumimos que esta función genera un id único
+                            usuario,
+                            vehiculoSeleccionado,
+                            inicio,
+                            fin,
+                            coste,
+                            fechaInicio,
+                            fechaFin);
                     contadorIdViaje++;
-                    System.out.println(viaje);
+                    // Añadir el viaje al usuario y a la lista de viajes generales
+                    usuario.realizarViaje(nuevoViaje); // Asumiendo que getViajes() retorna la lista de viajes del
+                                                       // usuario
+                    viajes.add(nuevoViaje); // Lista global de viajes
+
+                    // Actualizar el estado del vehículo
+                    vehiculoSeleccionado.realizarViaje(30);
                     vehiculoSeleccionado.setDisponible(false);
-                    usuario.realizarViaje(viaje);
-                    viajes.add(viaje);
+
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    System.out.println("Error en el formato de coordenadas. Inténtelo de nuevo.");
+                    System.out.println(" Error en el formato de coordenadas. Inténtelo nuevamente.");
                     return;
                 }
-            } else { // Patinete o Bicicleta
-                System.out.println("\nBases disponibles:");
+            } else { // Para patinete o bicicleta
+                System.out.println("\n Bases disponibles:");
                 for (int i = 0; i < bases.size(); i++) {
-                    System.out.println((i + 1) + ". " + bases.get(i));
+                    System.out.println("  " + (i + 1) + ". " + bases.get(i));
                 }
 
                 try {
-                    System.out.print("Seleccione la base de inicio: ");
+                    System.out.print("\n Seleccione la base de inicio (número): ");
                     int baseInicio = scanner.nextInt();
                     scanner.nextLine();
                     if (baseInicio < 1 || baseInicio > bases.size()) {
-                        System.out.println("Selección inválida. Intente de nuevo.");
+                        System.out.println(" Opción inválida. Inténtelo nuevamente.");
                         return;
                     }
 
-                    System.out.print("Seleccione la base de destino: ");
+                    System.out.print(" Seleccione la base de destino (número): ");
                     int baseDestino = scanner.nextInt();
                     scanner.nextLine();
                     if (baseDestino < 1 || baseDestino > bases.size()) {
-                        System.out.println("Selección inválida. Intente de nuevo.");
+                        System.out.println(" Opción inválida. Inténtelo nuevamente.");
                         return;
                     }
+
                     double distancia = calcularDistancia(bases.get(baseInicio - 1).getCoordenadas(),
                             bases.get(baseDestino - 1).getCoordenadas());
                     double tarifaBase = 1.5;
                     double costePorKm = 0.5;
-                    coste = Math.round((tarifaBase + (distancia * costePorKm)) * 100.0) / 100.0;
+                    coste = tarifaBase + (distancia * costePorKm);
+
+                    // Aplicar descuento si el usuario es premium
+                    if (usuario.getTipoUsuario().equalsIgnoreCase("premium")) {
+                        double descuento = (coste * DESCUENTO_PREMIUM) / 100.0;
+                        coste = Math.round((coste - descuento) * 100.0) / 100.0;
+                        System.out.println("\n Descuento aplicado: " + DESCUENTO_PREMIUM + "% (Usuario Premium)");
+                    }
 
                     if (saldoDisponible < coste) {
-                        System.out.println(
-                                "Saldo insuficiente. Se cobrará lo que tienes disponible: " + saldoDisponible + "€.");
                         coste = saldoDisponible;
-                        usuario.setSaldo(0); // Saldo se pone a cero porque se ha cobrado todo
+                        usuario.setSaldo(saldoDisponible - coste);
+                        System.out.println(" Tu saldo ha quedado en deuda: "
+                                + "No podrás alquilar otro vehículo hasta que recargues.");
                     } else {
-                        usuario.setSaldo(saldoDisponible - coste); // Se resta el coste del saldo
+                        usuario.setSaldo(saldoDisponible - coste);
                     }
 
-                    System.out.println(vehiculoSeleccionado + " reservado desde " + bases.get(baseInicio - 1)
-                            + " hasta " + bases.get(baseDestino - 1));
+                    System.out.println("\n Costo final del viaje: " + coste + "€");
 
-                    DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-                    System.out.print("Ingrese la fecha de inicio del viaje (formato: dd/MM/yyyy): ");
-                    String fechaInicioInput = scanner.nextLine();
-                    LocalDate fechaInicio = LocalDate.parse(fechaInicioInput, formatoFecha);
-
-                    System.out.print("Ingrese la fecha de fin del viaje (formato: dd/MM/yyyy): ");
-                    String fechaFinInput = scanner.nextLine();
-                    LocalDate fechaFin = LocalDate.parse(fechaFinInput, formatoFecha);
-
-                    Viaje viaje = new Viaje(opcionVehiculo, usuario, vehiculoSeleccionado,
-                            bases.get(baseInicio - 1).getCoordenadas(), bases.get(baseDestino - 1).getCoordenadas(),
-                            coste, fechaInicio, fechaFin);
+                    // Crear el objeto viaje y agregarlo a la lista de viajes del usuario
+                    Viaje nuevoViaje = new Viaje(
+                            contadorIdViaje, // Asumimos que esta función genera un id único
+                            usuario,
+                            vehiculoSeleccionado,
+                            bases.get(baseInicio - 1).getCoordenadas(),
+                            bases.get(baseDestino - 1).getCoordenadas(),
+                            coste,
+                            fechaInicio,
+                            fechaFin);
                     contadorIdViaje++;
+                    // Añadir el viaje al usuario y a la lista de viajes generales
+                    usuario.realizarViaje(nuevoViaje); // Asumiendo que getViajes() retorna la lista de viajes del
+                                                       // usuario
+                    viajes.add(nuevoViaje); // Lista global de viajes
 
-                    if (bases.get(baseInicio - 1) == bases.get(baseDestino - 1)) {
-                        bases.get(baseInicio - 1).aumentarUsos();
-                    } else {
-                        bases.get(baseInicio - 1).aumentarUsos();
-                        bases.get(baseDestino - 1).aumentarUsos();
-                    }
-
+                    // Actualizar el estado del vehículo
                     vehiculoSeleccionado.realizarViaje(30);
                     vehiculoSeleccionado.setDisponible(false);
-                    System.out.println(viaje);
-                    usuario.realizarViaje(viaje);
-                    viajes.add(viaje);
+
                 } catch (InputMismatchException e) {
-                    System.out.println("Entrada inválida. Asegúrese de ingresar un número.");
+                    System.out.println(" Entrada inválida. Asegúrese de ingresar un número.");
                     scanner.nextLine(); // Limpiar buffer
                 }
             }
         } catch (Exception e) {
-            System.out.println("Ocurrió un error inesperado: " + e.getMessage());
+            System.out.println(" Ocurrió un error inesperado: " + e.getMessage());
         }
     }
 
@@ -1503,8 +1741,8 @@ public class Movilidad {
             System.out.println("Vehículo reparado: " + vehiculoSeleccionado.getClass().getSimpleName());
             System.out.println("ID del vehículo: " + vehiculoSeleccionado.getId());
             System.out.println("Estado: " + vehiculoSeleccionado.getEstado());
-            System.out.println("Fecha de reparación: " + new java.util.Date()); // Aquí puedes personalizar la fecha
-            System.out.println("Precio de la reparación: $100.00"); // Aquí puedes calcular el precio real
+            System.out.println("Fecha de reparación: " + new java.util.Date()); 
+            System.out.println("Precio de la reparación: $100.00"); 
             System.out.println("-----------------");
 
             break; // Salir después de generar la factura
@@ -1562,6 +1800,7 @@ public class Movilidad {
             // Realizar el mantenimiento del vehículo
             vehiculoMantenido.setEstado("Mantenimiento terminado");
             vehiculoMantenido.setDisponible(true);
+            vehiculoMantenido.setBateria(100);
             // Eliminarlo de la lista de asignados y agregarlo a la lista de mantenidos
             encargado.realizarMantenimiento(vehiculoMantenido);
 
@@ -1737,7 +1976,9 @@ public class Movilidad {
             System.out.println("2. Baja de vehículo");
             System.out.println("3. Modificación de vehículo");
             System.out.println("4. Listar vehículos");
-            System.out.println("5. Volver al menú principal");
+            System.out.println("5. Crear nueva base");
+            System.out.println("6. Volver al menú principal");
+
             System.out.print("Seleccione una opción: ");
 
             opcion = scanner.nextInt();
@@ -1748,10 +1989,11 @@ public class Movilidad {
                 case 2 -> bajaVehiculo();
                 case 3 -> modificarVehiculo();
                 case 4 -> listarVehiculos();
-                case 5 -> System.out.println("Volviendo al menú principal...");
+                case 5 -> crearNuevaBase();
+                case 6 -> System.out.println("Volviendo al menú principal...");
                 default -> System.out.println("Opción inválida. Intente de nuevo.");
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 
     private static void altaVehiculo() {
@@ -1830,10 +2072,15 @@ public class Movilidad {
         for (int i = 0; i < vehiculos.size(); i++) {
             System.out
                     .println(i + ". " + vehiculos.get(i).getId() + " - " + vehiculos.get(i).getClass().getSimpleName()); // Muestra
+                                                                                                                         // //
                                                                                                                          // los
+                                                                                                                         // //
                                                                                                                          // vehículos
+                                                                                                                         // //
                                                                                                                          // con
+                                                                                                                         // //
                                                                                                                          // su
+                                                                                                                         // //
                                                                                                                          // ID
         }
 
@@ -1858,11 +2105,11 @@ public class Movilidad {
         System.out.println("\nSeleccione el vehículo a modificar:");
         for (int i = 0; i < vehiculos.size(); i++) {
             System.out
-                    .println(i + ". " + vehiculos.get(i).getId() + " - " + vehiculos.get(i).getClass().getSimpleName()); // Muestra
-                                                                                                                         // los
-                                                                                                                         // vehículos
-                                                                                                                         // con
-                                                                                                                         // su
+                    .println(i + ". " + vehiculos.get(i).getId() + " - " + vehiculos.get(i).getClass().getSimpleName()); // Muestra//
+                                                                                                                         // los//
+                                                                                                                         // vehículos//
+                                                                                                                         // con//
+                                                                                                                         // su//
                                                                                                                          // ID
         }
 
@@ -1961,16 +2208,40 @@ public class Movilidad {
         }
     }
 
+    public static void crearNuevaBase() {
+        System.out.print("Ingrese el nombre de la nueva base: ");
+        String nombreBase = scanner.nextLine();
+
+        System.out.print("Ingrese las coordenadas de la base (ejemplo: 40.4168,-3.7038): ");
+        String[] coordInput = scanner.nextLine().split(",");
+
+        System.out.print("Ingrese el número de sitios para vehículos en la base: ");
+        int numSitiosVehiculos = scanner.nextInt();
+        scanner.nextLine(); // Limpiar buffer
+
+        try {
+            Coordenada coordenadas = new Coordenada(Double.parseDouble(coordInput[0]),
+                    Double.parseDouble(coordInput[1]));
+
+            // Crear nueva base con ID automático
+            Base nuevaBase = new Base(contadorIdBase++, nombreBase, coordenadas, numSitiosVehiculos);
+            bases.add(nuevaBase);
+
+            System.out.println("Base creada exitosamente: " + nuevaBase);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            System.out.println("Error en el formato de coordenadas. Inténtelo de nuevo.");
+        }
+    }
+
     public static void gestionPremiun() {
-        Scanner scanner = new Scanner(System.in);
         LocalDate hoy = LocalDate.now();
         LocalDate haceUnMes = hoy.minusMonths(1);
-    
+
         if (usuarios == null || usuarios.isEmpty()) {
             System.out.println("No hay usuarios registrados.");
             return;
         }
-    
+
         for (Usuario usuario : usuarios) {
             if (usuario.getTipoUsuario().equalsIgnoreCase("Premium")) {
                 System.out.println(usuario.getNombre() + " es Premium.");
@@ -1991,7 +2262,7 @@ public class Movilidad {
                 }
             }
         }
-    
+
         // Menú de opciones
         while (true) {
             System.out.println("\nMenú de gestión de usuarios Premium:");
@@ -2000,21 +2271,22 @@ public class Movilidad {
             System.out.print("Seleccione una opción: ");
             int opcion = scanner.nextInt();
             scanner.nextLine(); // Limpiar buffer
-    
+
             if (opcion == 1) {
                 System.out.print("Ingrese el nombre del usuario a promocionar: ");
                 String nombreUsuario = scanner.nextLine();
                 boolean encontrado = false;
-    
+
                 for (Usuario usuario : usuarios) {
-                    if (usuario.getNombre().equalsIgnoreCase(nombreUsuario) && !usuario.getTipoUsuario().equalsIgnoreCase("Premium")) {
+                    if (usuario.getNombre().equalsIgnoreCase(nombreUsuario)
+                            && !usuario.getTipoUsuario().equalsIgnoreCase("Premium")) {
                         usuario.setTipoUsuario("Premium");
                         System.out.println(usuario.getNombre() + " ha sido promocionado a Premium.");
                         encontrado = true;
                         break;
                     }
                 }
-    
+
                 if (!encontrado) {
                     System.out.println("Usuario no encontrado o ya es Premium.");
                 }
@@ -2026,5 +2298,5 @@ public class Movilidad {
             }
         }
     }
-    
+
 }
